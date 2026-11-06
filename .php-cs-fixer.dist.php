@@ -3,6 +3,7 @@
 $finder = (new PhpCsFixer\Finder())
     ->in(__DIR__)
     ->exclude(['var', 'vendor', 'tools', 'node_modules', 'content'])
+    ->notPath('config/reference.php') // généré par Symfony
 ;
 
 return (new PhpCsFixer\Config())

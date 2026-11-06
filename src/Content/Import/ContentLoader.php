@@ -32,7 +32,7 @@ final class ContentLoader
     public function load(string $root, ImportReport $report): PreparedContent
     {
         $content = new PreparedContent();
-        $root = rtrim($root, '/');
+        $root = rtrim(str_replace('\\', '/', $root), '/');
         if (!is_dir($root)) {
             $report->error('', \sprintf('Dossier de contenus introuvable : %s', $root));
 
@@ -336,7 +336,22 @@ final class ContentLoader
 
     private function relative(string $root, string $path): string
     {
-        return ltrim(substr($path, \strlen($root)), '/');
+        return self::relativePath($root, $path);
+    }
+
+    /**
+     * Chemin relatif au dépôt, toujours avec « / » : sous Windows, Finder et realpath() renvoient des « \ »,
+     * or ces chemins servent de clés (pièces jointes, liens internes) et d'URL.
+     */
+    public static function relativePath(string $root, string $path): string
+    {
+        $root = rtrim(str_replace('\\', '/', $root), '/');
+        $path = str_replace('\\', '/', $path);
+        if (str_starts_with($path, $root.'/')) {
+            $path = substr($path, \strlen($root) + 1);
+        }
+
+        return ltrim($path, '/');
     }
 
     private function gitRevision(string $root): ?string
