@@ -20,10 +20,10 @@
                     <a class="card card-link h-full" href="{{ path('student_constellation', {code: c.theme.code}) }}">
                         <div class="mb-3 flex items-start justify-between gap-2">
                             <h3>{{ c.theme.title }}</h3>
-                            {% if c.complete %}<span class="badge badge-valide">{{ icon('check', 'icon-sm') }}Complétée</span>{% endif %}
+                            {% if c.complete %}<span class="badge badge-valide">{{ icon('check', 'icon-sm') }}Complète</span>{% endif %}
                         </div>
-                        <p class="mb-2 font-semibold">{{ c.validated }} sur {{ c.total }} validés</p>
-                        {% include 'components/_meter.html.twig' with {value: c.validated, total: c.total} %}
+                        {% if c.map.stars is not empty %}{% include 'components/_mini_sky.html.twig' with {map: c.map} %}{% endif %}
+                        <p class="mono mb-2 text-sm">{{ c.validated }} sur {{ c.total }} validés</p>
                         <ul class="muted flex flex-wrap gap-x-4 gap-y-1 text-sm">
                             <li>Savoirs {{ c.byType['savoir'].validated }}/{{ c.byType['savoir'].total }}</li>
                             <li>Savoir-faire {{ c.byType['savoir-faire'].validated }}/{{ c.byType['savoir-faire'].total }}</li>

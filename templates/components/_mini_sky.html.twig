@@ -1,0 +1,11 @@
+{# Miniature d'une constellation (cartes « Mon ciel »). Décorative : le texte chiffré l'accompagne toujours. Variable : map #}
+<svg class="mini-sky" viewBox="0 0 {{ map.width }} {{ map.height }}" preserveAspectRatio="xMidYMid meet" aria-hidden="true" focusable="false">
+    {% for link in map.links %}<path class="mini-link is-{{ link.state }}" d="{{ link.path }}"/>{% endfor %}
+    {% for star in map.stars %}
+        <g class="mini-star is-{{ star.status.value }}" transform="translate({{ star.x }} {{ star.y }})">
+            {% if star.item.type.value == 'savoir' %}<circle r="22"/>
+            {% elseif star.item.type.value == 'savoir-faire' %}<path d="M0 -26 L26 0 L0 26 L-26 0 Z"/>
+            {% else %}<path d="M0 -30 L8 -8 L30 0 L8 8 L0 30 L-8 8 L-30 0 L-8 -8 Z"/>{% endif %}
+        </g>
+    {% endfor %}
+</svg>

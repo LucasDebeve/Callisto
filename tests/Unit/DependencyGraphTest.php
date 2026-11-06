@@ -51,8 +51,10 @@ final class DependencyGraphTest extends TestCase
         $positions = $layout->compute($graph, ['a', 'b', 'c']);
 
         self::assertLessThan($positions['b']['x'], $positions['a']['x']);
-        self::assertSame($positions['b']['x'], $positions['c']['x']);
-        self::assertNotSame($positions['b']['y'], $positions['c']['y']);
+        self::assertEqualsWithDelta($positions['b']['x'], $positions['c']['x'], 2 * ConstellationLayout::JITTER, 'Même colonne, au décalage organique près.');
+        self::assertGreaterThan(ConstellationLayout::ROW_HEIGHT - 2 * ConstellationLayout::JITTER, abs($positions['b']['y'] - $positions['c']['y']));
+        self::assertSame(ConstellationLayout::jitter('b'), ConstellationLayout::jitter('b'), 'Décalage stable.');
+        self::assertStringStartsWith('M70.0 10.0 C', ConstellationLayout::curve(70, 10, 240, 120));
 
         $manual = $layout->compute($graph, ['a', 'b', 'c'], ['c' => ['x' => 3.0, 'y' => 0.0]]);
         self::assertEqualsWithDelta(ConstellationLayout::MARGIN + 3 * ConstellationLayout::COLUMN_WIDTH, $manual['c']['x'], 0.001);

@@ -29,7 +29,7 @@
     --teacher-strong: #0A5550;
     --focus: #3B49DF;
     --space-1: 0.25rem; --space-2: 0.5rem; --space-3: 0.75rem; --space-4: 1rem; --space-6: 1.5rem; --space-8: 2rem;
-    --radius-sm: 0.375rem; --radius: 0.625rem; --radius-lg: 1rem;
+    --radius-sm: 0.25rem; --radius: 0.375rem; --radius-lg: 0.5rem;
     --shadow: 0 1px 2px rgb(20 23 43 / 0.06), 0 4px 16px rgb(20 23 43 / 0.06);
     --shadow-lg: 0 8px 32px rgb(20 23 43 / 0.14);
     --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
@@ -107,7 +107,9 @@
 
     /* Boutons */
     .btn { display: inline-flex; align-items: center; justify-content: center; gap: var(--space-2); min-height: 2.75rem; padding: 0.5rem 1.1rem;
-        border-radius: var(--radius); border: 1px solid transparent; font-weight: 600; text-decoration: none; cursor: pointer; transition: background-color .15s, border-color .15s; }
+        border-radius: var(--radius); border: 1px solid transparent; font-weight: 600; text-decoration: none; cursor: pointer;
+        transition: background-color .15s, border-color .15s, transform .15s; }
+    .btn:active { transform: translateY(1px); }
     .btn-primary { background: var(--accent); color: var(--on-accent); }
     .btn-primary:hover { background: var(--accent-strong); color: var(--on-accent); }
     .btn-secondary { background: var(--surface); color: var(--text); border-color: var(--border); }
@@ -133,15 +135,16 @@
     .rules li[data-ok="true"] { color: var(--right); }
 
     /* Surfaces */
-    .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); box-shadow: var(--shadow); padding: var(--space-6); }
+    .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: var(--space-6); }
     .card-tight { padding: var(--space-4); }
-    .card-link { display: block; color: inherit; text-decoration: none; transition: border-color .15s, transform .15s; }
-    .card-link:hover { border-color: var(--accent); color: inherit; }
+    .card-link { display: block; color: inherit; text-decoration: none; transition: border-color .2s; }
+    .card-link:hover { border-color: var(--text-2); color: inherit; }
     .muted { color: var(--text-2); }
-    .eyebrow { font-size: 0.75rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-2); }
+    .eyebrow { font-family: var(--font-code); font-size: 0.75rem; font-weight: 400; letter-spacing: 0.04em; text-transform: uppercase; color: var(--text-2); }
+    .mono { font-family: var(--font-code); }
 
     /* Pastilles d'état : forme + mot, jamais la couleur seule */
-    .badge { display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.15rem 0.6rem; border-radius: 999px; font-size: 0.8125rem; font-weight: 600; border: 1px solid var(--border); background: var(--surface-2); color: var(--text); white-space: nowrap; }
+    .badge { display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.1rem 0.45rem; border-radius: var(--radius-sm); font-size: 0.8125rem; font-weight: 600; border: 1px solid var(--border); background: var(--surface); color: var(--text); white-space: nowrap; }
     .badge-valide { border-color: var(--star-stroke); background: color-mix(in srgb, var(--star-fill) 22%, var(--surface)); }
     .badge-disponible { border-color: var(--accent); color: var(--accent); background: var(--surface); }
     .badge-verrouille { border-style: dashed; color: var(--text-2); }
@@ -149,9 +152,9 @@
 
     /* Alertes */
     .alert { display: flex; gap: var(--space-3); align-items: flex-start; padding: var(--space-3) var(--space-4); border-radius: var(--radius); border: 1px solid var(--border); background: var(--surface); margin-bottom: var(--space-4); }
-    .alert-success { border-color: var(--right); }
+    .alert-success { border-color: color-mix(in srgb, var(--right) 35%, var(--border)); background: color-mix(in srgb, var(--right) 6%, var(--surface)); }
     .alert-success > .icon { color: var(--right); }
-    .alert-error { border-color: var(--wrong); }
+    .alert-error { border-color: color-mix(in srgb, var(--wrong) 35%, var(--border)); background: color-mix(in srgb, var(--wrong) 6%, var(--surface)); }
     .alert-error > .icon { color: var(--wrong); }
     .alert-info > .icon { color: var(--accent); }
 
@@ -163,10 +166,23 @@
         .sidebar { border-right: 0; border-bottom: 1px solid var(--border); padding: var(--space-2) var(--space-4); }
     }
     @media (min-width: 1024px) { .menu-toggle { display: none !important; } .sidebar { position: sticky; top: 0; height: 100vh; } }
-    .nav-link { display: flex; align-items: center; gap: var(--space-3); min-height: 2.75rem; padding: 0.4rem 0.75rem; border-radius: var(--radius); color: var(--text-2); text-decoration: none; font-weight: 500; }
-    .nav-link:hover { background: var(--surface-2); color: var(--text); }
-    .nav-link[aria-current="page"] { background: color-mix(in srgb, var(--accent) 14%, var(--surface)); color: var(--text); font-weight: 600; box-shadow: inset 3px 0 0 var(--accent); }
-    .space-label { display: inline-flex; align-items: center; gap: var(--space-2); padding: 0.25rem 0.6rem; border-radius: var(--radius-sm); background: var(--teacher); color: var(--surface); font-weight: 700; font-size: 0.8125rem; }
+    /* Navigation en orbite : un tracé vertical, la page courante est une lune allumée dessus. */
+    .nav-orbit { position: relative; display: flex; flex-direction: column; }
+    .nav-orbit::before { content: ""; position: absolute; left: 0.95rem; top: 0.9rem; bottom: 0.9rem; border-left: 1px dashed var(--border); }
+    .nav-link { position: relative; display: flex; align-items: center; gap: var(--space-3); min-height: 2.75rem; padding: 0.4rem 0.75rem;
+        border-radius: var(--radius); color: var(--text-2); text-decoration: none; font-weight: 500; background: none; border: 0; cursor: pointer; width: 100%; text-align: left; }
+    .nav-link:hover { color: var(--text); }
+    .nav-orbit .nav-link { padding-left: 2.25rem; }
+    .nav-orbit .nav-link::before { content: ""; position: absolute; left: calc(0.95rem - 5px); top: 50%; width: 10px; height: 10px; border-radius: 50%;
+        background: var(--surface); border: 1.5px solid var(--border); transform: translateY(-50%) scale(.55); transition: transform .3s cubic-bezier(.3, 1.5, .5, 1), background-color .3s, border-color .3s; }
+    .nav-orbit .nav-link:hover::before { transform: translateY(-50%) scale(.8); border-color: var(--text-2); }
+    .nav-orbit .nav-link[aria-current="page"] { color: var(--text); font-weight: 650; }
+    .nav-orbit .nav-link[aria-current="page"]::before { transform: translateY(-50%) scale(1); background: var(--star-fill); border-color: var(--star-stroke);
+        box-shadow: 0 0 0 4px color-mix(in srgb, var(--star-fill) 22%, transparent); }
+    .nav-orbit .nav-link .icon { opacity: .75; }
+    .nav-orbit .nav-link[aria-current="page"] .icon { opacity: 1; }
+    .nav-meta { border-top: 1px solid var(--border); margin-top: var(--space-4); padding-top: var(--space-3); }
+    .space-label { display: inline-flex; align-items: center; gap: var(--space-2); padding: 0.2rem 0.5rem; border: 1px solid var(--teacher); border-radius: var(--radius-sm); color: var(--teacher); font-family: var(--font-code); font-size: 0.75rem; text-transform: uppercase; letter-spacing: .04em; }
     .main { padding: var(--space-6) var(--space-4); max-width: 80rem; width: 100%; }
     @media (min-width: 1024px) { .main { padding: var(--space-8) 2.5rem; } }
 
@@ -184,7 +200,8 @@
     .prose h2 { margin-top: 2em; } .prose h3 { margin-top: 1.6em; }
     .prose ul { list-style: disc; padding-left: 1.4em; } .prose ol { list-style: decimal; padding-left: 1.4em; }
     .prose li + li { margin-top: .3em; }
-    .prose blockquote { border-left: 4px solid var(--accent); padding: .25em 1em; color: var(--text-2); background: var(--surface); border-radius: 0 var(--radius-sm) var(--radius-sm) 0; }
+    .prose blockquote { position: relative; padding: .9em 0 .9em 2.2em; border-block: 1px solid var(--border); color: var(--text); }
+    .prose blockquote::before { content: "“"; position: absolute; left: 0; top: .1em; font-family: var(--font-title); font-size: 2.6em; line-height: 1; color: var(--star-fill); }
     .prose :not(pre) > code { background: var(--surface-2); padding: .1em .35em; border-radius: var(--radius-sm); font-size: .9em; }
     .prose img { max-width: 100%; height: auto; border-radius: var(--radius); background: #fff; padding: var(--space-2); border: 1px solid var(--border); }
     .table-wrap { overflow-x: auto; }
@@ -201,39 +218,96 @@
     /* Sommaire des cours */
     .toc a { display: block; padding: .3rem .6rem; border-radius: var(--radius-sm); color: var(--text-2); text-decoration: none; font-size: .9rem; }
     .toc a:hover { background: var(--surface-2); color: var(--text); }
-    .toc a[aria-current="page"] { color: var(--text); font-weight: 600; background: var(--surface-2); }
+    .toc a[aria-current="page"] { color: var(--text); font-weight: 600; }
+    .toc a[aria-current="page"]::before { content: "●"; color: var(--star-fill); margin-right: .4rem; font-size: .7em; vertical-align: .15em; }
 
     /* Constellations */
-    .constellation { width: 100%; overflow-x: auto; background: radial-gradient(ellipse at 20% 10%, color-mix(in srgb, var(--accent) 10%, var(--surface)) 0, var(--surface) 60%); border: 1px solid var(--border); border-radius: var(--radius-lg); }
-    .constellation svg { display: block; min-width: 100%; }
-    .sky-link { stroke: var(--locked); stroke-width: 2; stroke-dasharray: 4 5; fill: none; }
-    .sky-link.is-lit { stroke: var(--star-stroke); stroke-dasharray: none; stroke-width: 2.5; }
-    .star-shape { stroke-width: 2.5; }
-    .star .star-shape { fill: var(--surface); stroke: var(--locked); stroke-dasharray: 4 3; }
-    .star.is-disponible .star-shape { stroke: var(--accent); stroke-dasharray: none; stroke-width: 3; }
-    .star.is-valide .star-shape { fill: var(--star-fill); stroke: var(--star-stroke); stroke-dasharray: none; filter: drop-shadow(0 0 6px color-mix(in srgb, var(--star-fill) 70%, transparent)); }
-    .star .star-check { stroke: #3A2600; stroke-width: 3; fill: none; stroke-linecap: round; stroke-linejoin: round; }
-    .star-label { fill: var(--text); font-size: 12px; font-family: var(--font-sans); paint-order: stroke; stroke: var(--surface); stroke-width: 4px; stroke-linejoin: round; }
-    .star-label-type { fill: var(--text-2); font-size: 10px; }
-    .star a, .star { cursor: pointer; }
-    .star:focus-visible { outline: none; }
-    .star:focus-visible .star-focus, .star:hover .star-focus { stroke: var(--focus); stroke-width: 3; }
-    .star-focus { fill: none; stroke: transparent; }
-    .star.is-selected .star-focus { stroke: var(--accent); stroke-width: 2; stroke-dasharray: 3 3; }
-    .sky-dots circle { fill: var(--text-2); opacity: .25; }
+    .sky-frame { position: relative; border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden;
+        background: radial-gradient(120% 90% at 15% 0%, color-mix(in srgb, var(--accent) 9%, var(--surface)) 0, var(--surface) 55%),
+                    radial-gradient(80% 70% at 100% 100%, color-mix(in srgb, var(--star-fill) 7%, transparent) 0, transparent 60%); }
+    .sky { display: block; width: 100%; height: auto; max-height: 72vh; touch-action: pan-y; user-select: none; cursor: grab; }
+    .sky.is-dragging { cursor: grabbing; }
+    .sky-dust circle { fill: var(--text-2); opacity: .28; }
+    .sky-dust.is-far circle { opacity: .16; }
+    .sky-tools { position: absolute; top: var(--space-3); right: var(--space-3); z-index: 1; display: flex; flex-direction: column; gap: 2px;
+        border: 1px solid var(--border); border-radius: var(--radius); background: color-mix(in srgb, var(--surface) 88%, transparent); backdrop-filter: blur(6px); overflow: hidden; }
+    .sky-tool { width: 2.75rem; height: 2.75rem; display: grid; place-items: center; color: var(--text-2); background: none; border: 0; cursor: pointer; }
+    .sky-tool:hover { color: var(--text); background: var(--surface-2); }
+    .sky-hint { position: absolute; left: var(--space-3); bottom: var(--space-2); margin: 0; font-family: var(--font-code); font-size: .7rem; color: var(--text-2); opacity: .8; pointer-events: none; }
+    .sky-legend { display: flex; flex-wrap: wrap; gap: .5rem 1.25rem; margin-top: var(--space-3); font-size: .875rem; color: var(--text-2); }
+    .sky-legend li { display: flex; align-items: center; gap: .35rem; }
 
-    @keyframes star-light { 0% { transform: scale(.6); opacity: .4; } 60% { transform: scale(1.15); opacity: 1; } 100% { transform: scale(1); } }
-    @keyframes link-draw { from { stroke-dashoffset: 300; } to { stroke-dashoffset: 0; } }
-    .star.is-lighting .star-body { animation: star-light var(--star-anim) ease-out both; transform-box: fill-box; transform-origin: center; }
-    .sky-link.is-drawing { stroke-dasharray: 300; animation: link-draw var(--star-anim) ease-out both; }
+    /* Liens : courbes, éteints en pointillés, « ouverts » parcourus par un flux vers l'étape suivante, complets dorés. */
+    .sky-link { fill: none; stroke-linecap: round; transition: opacity .3s, stroke-width .3s; }
+    .sky-link.is-eteint { stroke: var(--locked); stroke-width: 1.5; stroke-dasharray: 2 7; opacity: .75; }
+    .sky-link.is-ouvert { stroke: var(--accent); stroke-width: 2; stroke-dasharray: 6 8; animation: sky-flow 1.6s linear infinite; }
+    .sky-link.is-complet { stroke: var(--star-fill); stroke-width: 2.5; filter: drop-shadow(0 0 3px color-mix(in srgb, var(--star-fill) 60%, transparent)); }
+    @keyframes sky-flow { to { stroke-dashoffset: -14; } }
+    @keyframes mini-flow { to { stroke-dashoffset: -6; } }
+
+    /* Étoiles : forme selon le type, état selon le remplissage et le contour. */
+    .star { cursor: pointer; outline: none; }
+    .star-body { transform-box: fill-box; transform-origin: center; transition: transform .35s cubic-bezier(.3, 1.5, .5, 1), opacity .3s; }
+    .star:hover .star-body, .star:focus-visible .star-body { transform: scale(1.12); }
+    .star-shape { stroke-width: 2.5; fill: var(--surface); stroke: var(--locked); stroke-dasharray: 4 3; transition: fill .4s, stroke .4s; }
+    .star.is-disponible .star-shape { stroke: var(--accent); stroke-dasharray: none; stroke-width: 3; }
+    .star.is-valide .star-shape { fill: var(--star-fill); stroke: var(--star-stroke); stroke-dasharray: none; }
+    .star-check { stroke: #3A2600; stroke-width: 3; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+    .glow-core { stop-color: var(--star-fill); stop-opacity: .55; }
+    .glow-edge { stop-color: var(--star-fill); stop-opacity: 0; }
+    .star-glow { fill: url(#sky-glow); opacity: .6; transform-box: fill-box; transform-origin: center; animation: star-twinkle 5.5s ease-in-out infinite; animation-delay: calc(var(--n, 0) * -0.9s); }
+    .star-halo { fill: none; stroke: var(--accent); stroke-width: 1.5; opacity: 0; transform-box: fill-box; transform-origin: center; animation: star-ripple 3.2s ease-out infinite; animation-delay: calc(var(--n, 0) * -0.6s); }
+    @keyframes star-twinkle { 0%, 100% { opacity: .45; transform: scale(.85); } 50% { opacity: .9; transform: scale(1.1); } }
+    @keyframes star-ripple { 0% { opacity: .55; transform: scale(.75); } 70%, 100% { opacity: 0; transform: scale(1.5); } }
+    .star-focus { fill: none; stroke: transparent; transform-box: fill-box; transform-origin: center; }
+    .star:focus-visible .star-focus { stroke: var(--focus); stroke-width: 3; }
+    .star.is-selected .star-focus { stroke: var(--text-2); stroke-width: 1.5; stroke-dasharray: 3 5; animation: orbit-spin 14s linear infinite; }
+    @keyframes orbit-spin { to { transform: rotate(360deg); } }
+    .star-label { fill: var(--text); font-size: 12px; font-family: var(--font-sans); paint-order: stroke; stroke: var(--surface); stroke-width: 4px; stroke-linejoin: round; pointer-events: none; transition: opacity .3s; }
+
+    /* Survol : le voisinage de l'étoile s'éclaire, le reste s'estompe. */
+    .sky.is-focusing .star:not(.is-near) .star-body, .sky.is-focusing .star:not(.is-near) .star-label { opacity: .28; }
+    .sky.is-focusing .sky-link:not(.is-near) { opacity: .12; }
+    .sky.is-focusing .sky-link.is-near { stroke-width: 3; opacity: 1; }
+
+    /* Entrée : les étoiles apparaissent couche après couche, puis les liens. */
+    @keyframes star-in { from { opacity: 0; transform: scale(.2); } 70% { opacity: 1; transform: scale(1.12); } to { opacity: 1; transform: scale(1); } }
+    @keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
+    .sky.is-entering .star-body { animation: star-in .7s cubic-bezier(.2, .8, .2, 1) both; animation-delay: calc(var(--layer, 0) * 140ms + var(--n, 0) * 22ms); }
+    .sky.is-entering .star-label { animation: fade-in .6s ease both; animation-delay: calc(var(--layer, 0) * 140ms + 250ms); }
+    .sky.is-entering .sky-links { animation: fade-in 1s ease .35s both; }
+
+    /* Validation : l'étoile s'allume, les liens vers ses suivantes se tracent (≈ 600 ms). */
+    @keyframes star-light { 0% { transform: scale(.6); } 60% { transform: scale(1.25); } 100% { transform: scale(1); } }
+    @keyframes link-draw { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
+    .star.is-lighting .star-body { animation: star-light var(--star-anim) cubic-bezier(.2, .8, .2, 1) both; }
+    .sky-link.is-drawing { stroke-dasharray: 1; animation: link-draw var(--star-anim) ease-out .3s both; }
+
+    /* Vue liste */
+    .sky-rows { display: flex; flex-direction: column; }
+    .sky-row-head { font-family: var(--font-code); font-size: .75rem; font-weight: 400; text-transform: uppercase; letter-spacing: .04em; color: var(--text-2); margin: var(--space-6) 0 var(--space-2); }
+    .sky-row { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--space-3); padding: var(--space-3) 0; border-bottom: 1px solid var(--border); }
+
+    /* Miniatures « Mon ciel » */
+    .mini-sky { display: block; width: 100%; height: 9rem; margin: var(--space-3) 0; }
+    .mini-sky * { vector-effect: non-scaling-stroke; }
+    .mini-link { fill: none; stroke-width: 1.5px; stroke-linecap: round; }
+    .mini-link.is-eteint { stroke: var(--locked); opacity: .5; stroke-dasharray: 1 4; }
+    .mini-link.is-ouvert { stroke: var(--accent); opacity: .8; stroke-dasharray: 3 3; }
+    .mini-link.is-complet { stroke: var(--star-fill); }
+    .mini-star > * { fill: var(--surface); stroke: var(--locked); stroke-width: 1.5px; stroke-dasharray: 2 2; }
+    .mini-star.is-disponible > * { stroke: var(--accent); stroke-dasharray: none; }
+    .mini-star.is-valide > * { fill: var(--star-fill); stroke: var(--star-stroke); stroke-dasharray: none; }
+    .card-link:hover .mini-link.is-ouvert { animation: mini-flow 1s linear infinite; }
+
     @media (prefers-reduced-motion: reduce) {
-        .star.is-lighting .star-body, .sky-link.is-drawing { animation: none; }
+        .sky-link.is-ouvert, .star-glow, .star-halo, .star.is-selected .star-focus, .card-link:hover .mini-link.is-ouvert,
+        .sky.is-entering .star-body, .sky.is-entering .star-label, .sky.is-entering .sky-links,
+        .star.is-lighting .star-body, .sky-link.is-drawing, .side-panel [data-constellation-target="detail"]:not([hidden]) { animation: none; }
+        .star-halo { opacity: 0; }
         .sky-link.is-drawing { stroke-dasharray: none; }
         * { scroll-behavior: auto !important; transition: none !important; }
     }
-
-    .side-panel { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); box-shadow: var(--shadow); padding: var(--space-6); }
-    @media (min-width: 1024px) { .side-panel { position: sticky; top: var(--space-6); } }
 
     /* Indicateur de progression d'une constellation */
     .meter { height: .5rem; border-radius: 999px; background: var(--surface-2); overflow: hidden; }
@@ -249,9 +323,9 @@
     .progress-dots .dot { display: inline-flex; align-items: center; justify-content: center; width: 2.25rem; height: 2.25rem; border-radius: 999px; border: 1px solid var(--border); text-decoration: none; color: var(--text-2); font-size: .85rem; background: var(--surface); cursor: pointer; }
     .progress-dots .dot.is-answered { border-color: var(--accent); color: var(--text); font-weight: 600; }
     .progress-dots .dot[aria-current="step"] { background: var(--accent); color: var(--on-accent); border-color: var(--accent); }
-    .correction { border-left: 4px solid var(--border); padding-left: var(--space-4); }
-    .correction.is-right { border-left-color: var(--right); }
-    .correction.is-wrong { border-left-color: var(--wrong); }
+    .correction { position: relative; }
+    .correction.is-right { border-color: color-mix(in srgb, var(--right) 45%, var(--border)); }
+    .correction.is-wrong { border-color: color-mix(in srgb, var(--wrong) 45%, var(--border)); }
     .verdict { display: inline-flex; gap: var(--space-1); align-items: center; font-weight: 700; }
     .verdict.is-right { color: var(--right); } .verdict.is-wrong { color: var(--wrong); }
     .answer-line { display: flex; gap: var(--space-2); align-items: flex-start; padding: .35rem .5rem; border-radius: var(--radius-sm); }

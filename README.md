@@ -25,6 +25,7 @@ composer dev       # http://127.0.0.1:8000 (serveur PHP + Tailwind en surveillan
 ```
 
 `composer dev` démarre aussi les services s'ils sont arrêtés. Pour les arrêter : `docker compose down`.
+Compte bloqué après trop d'essais de connexion : `composer rate-limit:reset`.
 Si un PostgreSQL local occupe déjà le port 5432, lancer avec `CALLISTO_DB_PORT=5433` et adapter
 `DATABASE_URL` dans `.env.local`.
 
