@@ -1,15 +1,43 @@
-#!/bin/sh
-# Serveur de développement local : PHP intégré + Tailwind en mode surveillance.
-# Les services (PostgreSQL) tournent dans Docker : composer services. Lancer de préférence via « composer dev ».
-set -eu
-cd "$(dirname "$0")/.."
-HOST="${CALLISTO_DEV_HOST:-127.0.0.1}"
-PORT="${CALLISTO_DEV_PORT:-8000}"
+#!/usr/bin/env php
+<?php
 
-php bin/console tailwind:build --watch &
-TAILWIND_PID=$!
-trap 'kill "$TAILWIND_PID" 2>/dev/null || true' EXIT INT TERM
+/*
+ * Serveur de développement local, multiplateforme (Linux, macOS, Windows) :
+ * Tailwind en mode surveillance + serveur PHP intégré. Lancer de préférence via « composer dev »,
+ * qui démarre aussi les services Docker (PostgreSQL).
+ *
+ * Variables facultatives : CALLISTO_DEV_HOST (127.0.0.1), CALLISTO_DEV_PORT (8000).
+ */
 
-echo "Callisto : http://$HOST:$PORT"
-# Plusieurs processus pour servir les fichiers et les requêtes en parallèle.
-PHP_CLI_SERVER_WORKERS="${PHP_CLI_SERVER_WORKERS:-4}" php -S "$HOST:$PORT" -t public public/index.php
+declare(strict_types=1);
+
+use Symfony\Component\Process\Process;
+
+$root = dirname(__DIR__);
+require $root.'/vendor/autoload.php';
+
+$host = getenv('CALLISTO_DEV_HOST') ?: '127.0.0.1';
+$port = getenv('CALLISTO_DEV_PORT') ?: '8000';
+$windows = '\\' === DIRECTORY_SEPARATOR;
+
+// Tailwind recompile la feuille de style à chaque modification, en arrière-plan.
+$tailwind = new Process([PHP_BINARY, 'bin/console', 'tailwind:build', '--watch'], $root, null, null, null);
+$tailwind->start(static function (string $type, string $buffer): void {
+    fwrite(Process::ERR === $type ? STDERR : STDOUT, $buffer);
+});
+register_shutdown_function(static function () use ($tailwind): void {
+    if ($tailwind->isRunning()) {
+        $tailwind->stop(2);
+    }
+});
+
+// Plusieurs processus pour servir requêtes et fichiers en parallèle (non pris en charge sous Windows).
+$env = $windows ? [] : ['PHP_CLI_SERVER_WORKERS' => getenv('PHP_CLI_SERVER_WORKERS') ?: '4'];
+$server = new Process([PHP_BINARY, '-S', $host.':'.$port, '-t', 'public', 'public/index.php'], $root, $env, null, null);
+
+fwrite(STDOUT, sprintf("Callisto : http://%s:%s (Ctrl+C pour arrêter)\n", $host, $port));
+$server->run(static function (string $type, string $buffer): void {
+    fwrite(Process::ERR === $type ? STDERR : STDOUT, $buffer);
+});
+
+exit($server->getExitCode() ?? 0);

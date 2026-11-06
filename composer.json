@@ -95,7 +95,7 @@
         "dev": [
             "Composer\\Config::disableProcessTimeout",
             "@services",
-            "bin/dev"
+            "@php bin/dev"
         ],
         "test": [
             "@services",
@@ -104,7 +104,7 @@
         "qa": [
             "@php vendor/bin/php-cs-fixer fix --dry-run --diff",
             "@php bin/console cache:warmup --env=dev",
-            "tools/phpstan/vendor/bin/phpstan analyse --no-progress --memory-limit=1G",
+            "@php tools/phpstan/vendor/bin/phpstan analyse --no-progress --memory-limit=1G",
             "@test"
         ]
     },
