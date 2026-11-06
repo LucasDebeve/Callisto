@@ -81,6 +81,31 @@
         ],
         "post-update-cmd": [
             "@auto-scripts"
+        ],
+        "services": [
+            "docker compose up -d --wait"
+        ],
+        "setup": [
+            "@services",
+            "@php bin/console doctrine:migrations:migrate --no-interaction --allow-no-migration",
+            "@php bin/console callisto:content:import --yes",
+            "@php bin/console callisto:demo:load",
+            "@php bin/console tailwind:build"
+        ],
+        "dev": [
+            "Composer\\Config::disableProcessTimeout",
+            "@services",
+            "bin/dev"
+        ],
+        "test": [
+            "@services",
+            "@php vendor/bin/phpunit"
+        ],
+        "qa": [
+            "@php vendor/bin/php-cs-fixer fix --dry-run --diff",
+            "@php bin/console cache:warmup --env=dev",
+            "tools/phpstan/vendor/bin/phpstan analyse --no-progress --memory-limit=1G",
+            "@test"
         ]
     },
     "conflict": {
@@ -103,6 +128,12 @@
         "symfony/process": "7.4.*",
         "symfony/web-profiler-bundle": "7.4.*"
     },
-    "repositories": {
+    "repositories": {},
+    "scripts-descriptions": {
+        "services": "Démarre les services Docker de développement (PostgreSQL).",
+        "setup": "Prépare l'environnement : services, migrations, contenus, démonstration, feuille de style.",
+        "dev": "Lance l'application en local (serveur PHP + Tailwind en surveillance) avec les services Docker.",
+        "test": "Lance la suite de tests.",
+        "qa": "Formatage, analyse statique et tests, comme la CI."
     }
 }

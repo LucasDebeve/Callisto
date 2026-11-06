@@ -1,5 +1,6 @@
 # syntax=docker/dockerfile:1.7
-# Image de l'application (PHP-FPM) et image Caddy servant les fichiers publics compilés.
+# Images de PRODUCTION uniquement : application (PHP-FPM) et Caddy servant les fichiers publics compilés.
+# En développement, l'application tourne sur le poste (composer dev) ; seuls les services sont dans Docker.
 # Versions épinglées (S19), mises à jour proposées par Renovate.
 
 ARG PHP_VERSION=8.3.14
@@ -18,15 +19,6 @@ COPY docker/php/php.ini /usr/local/etc/php/conf.d/zz-callisto.ini
 COPY docker/php/fpm.conf /usr/local/etc/php-fpm.d/zz-callisto.conf
 COPY --from=composer /usr/bin/composer /usr/bin/composer
 WORKDIR /app
-
-# ---------------------------------------------------------------- Développement
-FROM php-base AS php-dev
-ENV APP_ENV=dev
-RUN apk add --no-cache git unzip postgresql16-client \
- && echo "opcache.validate_timestamps=1" > /usr/local/etc/php/conf.d/zz-dev.ini
-COPY docker/php/entrypoint-dev.sh /usr/local/bin/callisto-dev
-RUN chmod +x /usr/local/bin/callisto-dev
-CMD ["callisto-dev"]
 
 # ---------------------------------------------------------------- Construction prod
 FROM php-base AS build
