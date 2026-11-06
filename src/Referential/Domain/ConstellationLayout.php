@@ -8,13 +8,17 @@ namespace App\Referential\Domain;
  * Calcule la position des étoiles d'une constellation, de gauche à droite, à partir du graphe de dépendances.
  *
  * Colonne = rang dans le graphe. Ordre dans la colonne = barycentre des prérequis (réduit les croisements),
- * puis ordre déclaré. Une position manuelle (fichier YAML) l'emporte toujours.
+ * puis ordre déclaré. Un léger décalage déterministe (dérivé du code) casse l'alignement en grille pour un
+ * rendu de ciel plus organique, toujours identique d'un affichage à l'autre. Une position manuelle
+ * (fichier YAML) l'emporte toujours et n'est jamais décalée.
  */
 final class ConstellationLayout
 {
     public const COLUMN_WIDTH = 170;
     public const ROW_HEIGHT = 110;
     public const MARGIN = 70;
+    /** Amplitude maximale du décalage organique, en pixels. */
+    public const JITTER = 18;
 
     /**
      * @param list<string>                             $orderedCodes ordre déclaré dans le référentiel
@@ -57,15 +61,47 @@ final class ConstellationLayout
         foreach ($columns as $layer => $codes) {
             $offset = ($tallest - \count($codes)) / 2;
             foreach ($codes as $row => $code) {
-                $grid = $manual[$code] ?? ['x' => (float) $layer, 'y' => $row + $offset];
+                if (isset($manual[$code])) {
+                    $positions[$code] = [
+                        'x' => self::MARGIN + $manual[$code]['x'] * self::COLUMN_WIDTH,
+                        'y' => self::MARGIN + $manual[$code]['y'] * self::ROW_HEIGHT,
+                    ];
+                    continue;
+                }
+                [$dx, $dy] = self::jitter($code);
                 $positions[$code] = [
-                    'x' => self::MARGIN + $grid['x'] * self::COLUMN_WIDTH,
-                    'y' => self::MARGIN + $grid['y'] * self::ROW_HEIGHT,
+                    'x' => self::MARGIN + self::JITTER + $layer * self::COLUMN_WIDTH + $dx,
+                    'y' => self::MARGIN + self::JITTER + ($row + $offset) * self::ROW_HEIGHT + $dy,
                 ];
             }
         }
 
         return $positions;
+    }
+
+    /**
+     * Décalage pseudo-aléatoire mais stable pour un code donné.
+     *
+     * @return array{0: float, 1: float}
+     */
+    public static function jitter(string $code): array
+    {
+        $hash = crc32($code);
+
+        return [
+            (($hash & 0xFF) / 255 * 2 - 1) * self::JITTER,
+            ((($hash >> 8) & 0xFF) / 255 * 2 - 1) * self::JITTER,
+        ];
+    }
+
+    /**
+     * Chemin SVG courbe (Bézier cubique) d'un prérequis vers l'élément qui en dépend.
+     */
+    public static function curve(float $x1, float $y1, float $x2, float $y2): string
+    {
+        $bend = max(40.0, abs($x2 - $x1) * 0.5);
+
+        return \sprintf('M%.1f %.1f C%.1f %.1f %.1f %.1f %.1f %.1f', $x1, $y1, $x1 + $bend, $y1, $x2 - $bend, $y2, $x2, $y2);
     }
 
     /**
@@ -91,8 +127,8 @@ final class ConstellationLayout
         }
 
         return [
-            'width' => max(array_column($positions, 'x')) + self::MARGIN + 40,
-            'height' => max(array_column($positions, 'y')) + self::MARGIN + 20,
+            'width' => max(array_column($positions, 'x')) + self::MARGIN + self::JITTER + 40,
+            'height' => max(array_column($positions, 'y')) + self::MARGIN + self::JITTER + 20,
         ];
     }
 }

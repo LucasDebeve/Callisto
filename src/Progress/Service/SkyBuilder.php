@@ -24,7 +24,7 @@ final readonly class SkyBuilder
     }
 
     /**
-     * @return list<array{theme: Theme, validated: int, total: int, complete: bool, byType: array<string, array{validated: int, total: int}>}>
+     * @return list<array{theme: Theme, validated: int, total: int, complete: bool, byType: array<string, array{validated: int, total: int}>, map: array<string, mixed>}>
      */
     public function constellations(string $levelCode, ProgressLedger $ledger): array
     {
@@ -39,6 +39,7 @@ final readonly class SkyBuilder
                 'total' => \count($codes),
                 'complete' => [] !== $codes && $validated === \count($codes),
                 'byType' => $this->countByType($items, $ledger),
+                'map' => $this->constellation($theme, $ledger),
             ];
         }
 
@@ -82,8 +83,8 @@ final readonly class SkyBuilder
      * Étoiles et liens d'une constellation.
      *
      * @return array{
-     *     stars: list<array{item: Item, status: ItemStatus, x: float, y: float, state: \App\Progress\Domain\ItemState, prerequisites: list<array{item: Item, status: ItemStatus}>, successors: list<Item>}>,
-     *     links: list<array{from: string, to: string, x1: float, y1: float, x2: float, y2: float, lit: bool}>,
+     *     stars: list<array{item: Item, status: ItemStatus, x: float, y: float, layer: int, state: \App\Progress\Domain\ItemState, prerequisites: list<array{item: Item, status: ItemStatus}>, successors: list<Item>}>,
+     *     links: list<array{from: string, to: string, x1: float, y1: float, x2: float, y2: float, path: string, lit: bool, state: 'complet'|'ouvert'|'eteint'}>,
      *     external: list<array{item: Item, status: ItemStatus}>,
      *     width: float,
      *     height: float,
@@ -104,6 +105,7 @@ final readonly class SkyBuilder
             }
         }
         $positions = $this->layout->compute($local, $codes, $manual);
+        $layers = $local->layers();
         $size = $this->layout->size($positions);
 
         $stars = [];
@@ -127,7 +129,10 @@ final readonly class SkyBuilder
                         'y1' => $positions[$pre]['y'],
                         'x2' => $positions[$code]['x'],
                         'y2' => $positions[$code]['y'],
+                        'path' => ConstellationLayout::curve($positions[$pre]['x'], $positions[$pre]['y'], $positions[$code]['x'], $positions[$code]['y']),
                         'lit' => $ledger->isValidated($pre),
+                        // complet : les deux étoiles sont allumées ; ouvert : chemin praticable vers la suivante.
+                        'state' => !$ledger->isValidated($pre) ? 'eteint' : ($ledger->isValidated($code) ? 'complet' : 'ouvert'),
                     ];
                 } else {
                     $external[$pre] = ['item' => $preItem, 'status' => $status];
@@ -138,6 +143,7 @@ final readonly class SkyBuilder
                 'status' => $ledger->statusOf($code, $graph),
                 'x' => $positions[$code]['x'],
                 'y' => $positions[$code]['y'],
+                'layer' => $layers[$code] ?? 0,
                 'state' => $ledger->stateOf($code),
                 'prerequisites' => $prerequisites,
                 'successors' => array_values(array_filter(array_map(fn (string $s) => $this->referential->item($s), $graph->successorsOf($code)))),

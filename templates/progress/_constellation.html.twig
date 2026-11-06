@@ -14,26 +14,41 @@
     <div class="grid gap-6 lg:grid-cols-[minmax(0,1fr)_22rem]" data-controller="constellation">
         <div>
             <div data-view-toggle-target="map">
-                <div class="constellation">
-                    <svg viewBox="0 0 {{ map.width }} {{ map.height }}" width="{{ map.width }}" height="{{ map.height }}" role="group" aria-label="Constellation {{ theme.title }} : {{ map.validated }} étoiles allumées sur {{ map.total }}. La vue liste donne les mêmes informations.">
-                        <g class="sky-dots" aria-hidden="true">
-                            {% for i in 1..18 %}<circle cx="{{ (i * 97) % map.width }}" cy="{{ (i * 53) % map.height }}" r="1.2"/>{% endfor %}
+                <div class="sky-frame">
+                    <div class="sky-tools" role="group" aria-label="Se déplacer dans la constellation" data-constellation-target="tools" hidden>
+                        <button type="button" class="sky-tool" data-action="constellation#zoomIn" aria-label="Rapprocher">{{ icon('plus', 'icon-sm') }}</button>
+                        <button type="button" class="sky-tool" data-action="constellation#zoomOut" aria-label="Éloigner">{{ icon('minus', 'icon-sm') }}</button>
+                        <button type="button" class="sky-tool" data-action="constellation#reset" aria-label="Voir toute la constellation">{{ icon('scan', 'icon-sm') }}</button>
+                    </div>
+                    <svg class="sky" data-constellation-target="svg" viewBox="0 0 {{ map.width }} {{ map.height }}" preserveAspectRatio="xMidYMid meet" role="group" aria-label="Constellation {{ theme.title }} : {{ map.validated }} étoiles allumées sur {{ map.total }}. La vue liste donne les mêmes informations.">
+                        <defs>
+                            <radialGradient id="sky-glow"><stop offset="0" class="glow-core"/><stop offset="1" class="glow-edge"/></radialGradient>
+                        </defs>
+                        <g class="sky-dust is-far" data-constellation-target="far" aria-hidden="true">
+                            {% set fw = (map.width * 1.4)|round %}{% set fh = (map.height * 1.4)|round %}
+                            {% for i in 1..70 %}<circle cx="{{ (i * 137) % fw - (map.width * 0.2)|round }}" cy="{{ (i * 89) % fh - (map.height * 0.2)|round }}" r="{{ i % 3 == 0 ? 1.3 : 0.8 }}"/>{% endfor %}
                         </g>
-                        <g aria-hidden="true">
+                        <g class="sky-dust" aria-hidden="true">
+                            {% set w = map.width|round %}{% set h = map.height|round %}
+                            {% for i in 1..24 %}<circle cx="{{ (i * 211) % w }}" cy="{{ (i * 157) % h }}" r="{{ i % 4 == 0 ? 1.8 : 1.1 }}"/>{% endfor %}
+                        </g>
+                        <g class="sky-links" aria-hidden="true">
                             {% for link in map.links %}
-                                <line class="sky-link{{ link.lit ? ' is-lit' : '' }}{{ link.from in lighting ? ' is-drawing' : '' }}" x1="{{ link.x1 }}" y1="{{ link.y1 }}" x2="{{ link.x2 }}" y2="{{ link.y2 }}"/>
+                                {% set drawing = link.from in lighting %}
+                                <path class="sky-link is-{{ link.state }}{{ drawing ? ' is-drawing' : '' }}" d="{{ link.path }}" data-from="{{ link.from }}" data-to="{{ link.to }}" data-constellation-target="link" {% if drawing %}pathLength="1"{% endif %}/>
                             {% endfor %}
                         </g>
                         {% for star in map.stars %}{% include 'progress/_star.html.twig' %}{% endfor %}
                     </svg>
+                    <p class="sky-hint" data-constellation-target="hint" hidden>Glisser pour se déplacer · Ctrl + molette pour zoomer</p>
                 </div>
-                <ul class="muted mt-3 flex flex-wrap gap-x-5 gap-y-2 text-sm" aria-label="Légende">
-                    <li class="flex items-center gap-1">{% include 'components/_type_icon.html.twig' with {type: enum('App\\Referential\\Domain\\ItemType').Knowledge} %}Savoir</li>
-                    <li class="flex items-center gap-1">{% include 'components/_type_icon.html.twig' with {type: enum('App\\Referential\\Domain\\ItemType').Skill} %}Savoir-faire</li>
-                    <li class="flex items-center gap-1">{% include 'components/_type_icon.html.twig' with {type: enum('App\\Referential\\Domain\\ItemType').Competency} %}Compétence</li>
-                    <li class="flex items-center gap-1">{{ icon('check', 'icon-sm') }}remplie : validée</li>
-                    <li class="flex items-center gap-1">{{ icon('circle-dashed', 'icon-sm') }}contour plein : disponible</li>
-                    <li class="flex items-center gap-1">{{ icon('lock', 'icon-sm') }}pointillés : prérequis à valider</li>
+                <ul class="sky-legend" aria-label="Légende">
+                    <li>{% include 'components/_type_icon.html.twig' with {type: enum('App\\Referential\\Domain\\ItemType').Knowledge} %}Savoir</li>
+                    <li>{% include 'components/_type_icon.html.twig' with {type: enum('App\\Referential\\Domain\\ItemType').Skill} %}Savoir-faire</li>
+                    <li>{% include 'components/_type_icon.html.twig' with {type: enum('App\\Referential\\Domain\\ItemType').Competency} %}Compétence</li>
+                    <li>{{ icon('check', 'icon-sm') }}remplie : validée</li>
+                    <li>{{ icon('circle-dashed', 'icon-sm') }}contour plein : disponible</li>
+                    <li>{{ icon('lock', 'icon-sm') }}pointillés : prérequis à valider</li>
                 </ul>
                 {% if map.external is not empty %}
                     <p class="muted mt-2 text-sm">Prérequis venant d'autres constellations :
@@ -44,13 +59,13 @@
             <div data-view-toggle-target="list" class="mt-6">
                 <h2 class="sr-only">Vue liste</h2>
                 {% set currentChapter = null %}
-                <ul class="flex flex-col gap-3">
+                <ul class="sky-rows">
                     {% for star in map.stars %}
                         {% if star.item.chapter.code != currentChapter %}
                             {% set currentChapter = star.item.chapter.code %}
-                            <li><h3 class="mt-2">{{ star.item.chapter.title }}</h3></li>
+                            <li><h3 class="sky-row-head">{{ star.item.chapter.title }}</h3></li>
                         {% endif %}
-                        <li class="card card-tight flex flex-wrap items-center justify-between gap-3">
+                        <li class="sky-row">
                             <div class="flex min-w-0 items-start gap-3">
                                 <span class="mt-1">{% include 'components/_type_icon.html.twig' with {type: star.item.type} %}</span>
                                 <div>
@@ -68,7 +83,7 @@
             </div>
         </div>
 
-        <aside class="side-panel" aria-label="Détails de l'étoile" aria-live="polite">
+        <aside class="side-panel" aria-label="Détails de l'étoile" aria-live="polite" data-constellation-target="panel">
             {% set any = selected in map.stars|map(s => s.item.code) %}
             {% for star in map.stars %}
                 {% set visible = selected == star.item.code %}

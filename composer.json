@@ -106,6 +106,9 @@
             "@php bin/console cache:warmup --env=dev",
             "@php tools/phpstan/vendor/bin/phpstan analyse --no-progress --memory-limit=1G",
             "@test"
+        ],
+        "rate-limit:reset": [
+            "@php bin/console cache:pool:clear cache.rate_limiter"
         ]
     },
     "conflict": {
@@ -134,6 +137,7 @@
         "setup": "Prépare l'environnement : services, migrations, contenus, démonstration, feuille de style.",
         "dev": "Lance l'application en local (serveur PHP + Tailwind en surveillance) avec les services Docker.",
         "test": "Lance la suite de tests.",
-        "qa": "Formatage, analyse statique et tests, comme la CI."
+        "qa": "Formatage, analyse statique et tests, comme la CI.",
+        "rate-limit:reset": "Remet à zéro les limitations d'essais de connexion (comptes et adresses IP bloqués)."
     }
 }

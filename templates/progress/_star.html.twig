@@ -1,25 +1,28 @@
-{# Une étoile de constellation. Variables : star, selected, lighting, baseUrl #}
+{# Une étoile de constellation. Variables : star, selected, lighting, baseUrl, loop.index0 (rang) #}
 {% set item = star.item %}
 {% set status = star.status.value %}
 {% set type = item.type.value %}
 <a href="{{ baseUrl }}?etoile={{ item.code }}" class="star is-{{ status }}{{ selected == item.code ? ' is-selected' : '' }}{{ item.code in lighting ? ' is-lighting' : '' }}"
-   data-code="{{ item.code }}" data-constellation-target="star" data-action="constellation#open"
+   data-code="{{ item.code }}" data-layer="{{ star.layer }}" data-x="{{ star.x }}" data-y="{{ star.y }}"
+   data-constellation-target="star"
+   data-action="click->constellation#open mouseenter->constellation#highlight mouseleave->constellation#unhighlight focus->constellation#focusStar blur->constellation#unhighlight"
    aria-label="{{ item.title }}. {{ item.type.label }}. {{ star.status.label }}{% if status == 'valide' and star.state.validatedOn %} le {{ star.state.validatedOn|date('d/m/Y') }}{% endif %}.">
     <g transform="translate({{ star.x }} {{ star.y }})">
         <g class="star-body">
+            {% if status == 'valide' %}<circle class="star-glow" r="34"/>{% elseif status == 'disponible' %}<circle class="star-halo" r="24"/>{% endif %}
             {% if type == 'savoir' %}
-                <circle class="star-focus" r="26"/>
-                <circle class="star-shape" r="18"/>
+                <circle class="star-focus" r="27"/>
+                <circle class="star-shape" r="17"/>
             {% elseif type == 'savoir-faire' %}
-                <path class="star-focus" d="M0 -30 L30 0 L0 30 L-30 0 Z"/>
+                <path class="star-focus" d="M0 -31 L31 0 L0 31 L-31 0 Z"/>
                 <path class="star-shape" d="M0 -21 L21 0 L0 21 L-21 0 Z"/>
             {% else %}
-                <path class="star-focus" d="M0 -32 L8 -8 L32 0 L8 8 L0 32 L-8 8 L-32 0 L-8 -8 Z"/>
+                <path class="star-focus" d="M0 -33 L8 -8 L33 0 L8 8 L0 33 L-8 8 L-33 0 L-8 -8 Z"/>
                 <path class="star-shape" d="M0 -24 L6 -6 L24 0 L6 6 L0 24 L-6 6 L-24 0 L-6 -6 Z"/>
             {% endif %}
             {% if status == 'valide' %}<path class="star-check" d="M-7 0 L-2 5 L8 -6"/>{% endif %}
         </g>
-        <text class="star-label" text-anchor="middle" y="40">
+        <text class="star-label" text-anchor="middle" y="44">
             {% for line in item.title|label_lines %}<tspan x="0" dy="{{ loop.first ? 0 : 14 }}">{{ line }}</tspan>{% endfor %}
         </text>
     </g>
