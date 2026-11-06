@@ -1,0 +1,120 @@
+# Intégration continue bloquante (M8) : aucun déploiement si tests, analyse statique,
+# formatage ou audit des dépendances échouent.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  qualite:
+    runs-on: ubuntu-24.04
+    services:
+      postgres:
+        image: postgres:16.6-alpine
+        env:
+          POSTGRES_USER: callisto
+          POSTGRES_PASSWORD: callisto
+          POSTGRES_DB: callisto
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U callisto" --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      DATABASE_URL: postgresql://callisto:callisto@127.0.0.1:5432/callisto?serverVersion=16&charset=utf8
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: intl, pdo_pgsql, zip
+          coverage: none
+          tools: composer:2.8
+
+      - name: Dépendances
+        run: composer install --no-interaction --no-progress --prefer-dist
+
+      - name: Audit des dépendances (S19)
+        run: composer audit --locked
+
+      - name: Formatage (PHP-CS-Fixer)
+        run: vendor/bin/php-cs-fixer fix --dry-run --diff
+
+      - name: Outil d'analyse statique
+        run: composer install --working-dir=tools/phpstan --no-interaction --no-progress --prefer-dist
+
+      - name: Analyse statique (PHPStan niveau 8)
+        run: |
+          php bin/console cache:warmup --env=dev
+          tools/phpstan/vendor/bin/phpstan analyse --no-progress --memory-limit=1G
+
+      - name: Gabarits et conteneur
+        run: |
+          php bin/console lint:twig templates
+          php bin/console lint:yaml config --parse-tags
+          php bin/console lint:container
+          php bin/console doctrine:schema:validate --skip-sync
+
+      - name: Contenus de démonstration (EC2)
+        run: php bin/console callisto:content:import content --check
+
+      - name: Feuille de style (Tailwind)
+        run: php bin/console tailwind:build
+
+      - name: Tests
+        run: vendor/bin/phpunit
+
+  image:
+    needs: qualite
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Image application
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          target: php-prod
+          push: true
+          tags: ghcr.io/lucasdebeve/callisto-app:${{ github.sha }}
+      - name: Image Caddy
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          target: caddy-prod
+          push: true
+          tags: ghcr.io/lucasdebeve/callisto-caddy:${{ github.sha }}
+      - name: Analyse de vulnérabilités de l'image
+        uses: aquasecurity/trivy-action@0.28.0
+        with:
+          image-ref: ghcr.io/lucasdebeve/callisto-app:${{ github.sha }}
+          severity: CRITICAL,HIGH
+          exit-code: '1'
+          ignore-unfixed: true
+
+  deploiement:
+    needs: image
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main' && vars.DEPLOY_ENABLED == 'true'
+    runs-on: ubuntu-24.04
+    environment: production
+    steps:
+      - name: Déployer sur le VPS (retour arrière : bin/ops/deploy.sh <version précédente>)
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.DEPLOY_HOST }}
+          username: ${{ secrets.DEPLOY_USER }}
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          script: cd /srv/callisto && ./bin/ops/deploy.sh ${{ github.sha }}

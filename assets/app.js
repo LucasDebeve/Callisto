@@ -1,0 +1,21 @@
+import { Application } from '@hotwired/stimulus';
+import ThemeController from './controllers/theme_controller.js';
+import MenuController from './controllers/menu_controller.js';
+import CodeCopyController from './controllers/code_copy_controller.js';
+import ConstellationController from './controllers/constellation_controller.js';
+import ViewToggleController from './controllers/view_toggle_controller.js';
+import PasswordRulesController from './controllers/password_rules_controller.js';
+import EntryGridController from './controllers/entry_grid_controller.js';
+import ConfirmController from './controllers/confirm_controller.js';
+import PreferencesController from './controllers/preferences_controller.js';
+
+const application = Application.start();
+application.register('theme', ThemeController);
+application.register('menu', MenuController);
+application.register('code-copy', CodeCopyController);
+application.register('constellation', ConstellationController);
+application.register('view-toggle', ViewToggleController);
+application.register('password-rules', PasswordRulesController);
+application.register('entry-grid', EntryGridController);
+application.register('confirm', ConfirmController);
+application.register('preferences', PreferencesController);

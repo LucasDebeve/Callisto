@@ -1,0 +1,26 @@
+savoir: snt-int-tcp
+questions:
+  - code: snt-tcp-q1
+    type: unique
+    enonce: Quel est le rôle principal du protocole TCP ?
+    choix:
+      - texte: Garantir que tous les paquets arrivent et dans le bon ordre
+        juste: true
+      - texte: Donner une adresse à chaque machine
+      - texte: Afficher les pages web
+    explication: TCP numérote les paquets, vérifie leur arrivée et redemande ceux qui manquent.
+  - code: snt-tcp-q2
+    type: multiple
+    enonce: Que fait TCP lorsqu'un paquet est perdu ?
+    choix:
+      - texte: Il détecte qu'un numéro de paquet manque
+        juste: true
+      - texte: Il redemande le paquet manquant
+        juste: true
+      - texte: Il abandonne l'envoi de tout le fichier
+    explication: Grâce à la numérotation, TCP repère le paquet manquant et le redemande.
+  - code: snt-tcp-q3
+    type: courte
+    enonce: Quel sigle de trois lettres désigne le protocole qui fiabilise les échanges ?
+    reponses_acceptees: ["TCP"]
+    explication: TCP signifie Transmission Control Protocol.

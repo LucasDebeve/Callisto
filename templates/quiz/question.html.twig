@@ -1,0 +1,55 @@
+{% extends 'layout/student.html.twig' %}
+
+{% block title %}Question {{ n }} sur {{ attempt.total }}{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl">
+    <p class="eyebrow">{{ item ? item.title : attempt.itemCode }}</p>
+    <form method="post" action="{{ path('quiz_question', {id: attempt.id, n: n}) }}">
+        <input type="hidden" name="_token" value="{{ csrf_token('quiz_answer_' ~ attempt.id) }}">
+        <nav class="mb-4 mt-2" aria-label="Questions">
+            <ol class="progress-dots">
+                {% for i in 1..attempt.total %}
+                    <li><button type="submit" name="aller" value="q{{ i }}" class="dot{{ attempt.isAnswered(i - 1) ? ' is-answered' : '' }}" {% if i == n %}aria-current="step"{% endif %}><span class="sr-only">Question </span>{{ i }}<span class="sr-only">{{ attempt.isAnswered(i - 1) ? ', répondue' : ', sans réponse' }}</span></button></li>
+                {% endfor %}
+            </ol>
+        </nav>
+
+        <fieldset class="card">
+            <legend class="sr-only">Question {{ n }} sur {{ attempt.total }}</legend>
+            <p class="mb-3 font-semibold" aria-hidden="true">{{ n }} sur {{ attempt.total }}</p>
+            <div class="prose mb-4">{{ question.promptHtml|raw }}</div>
+            {% if question.codeHtml %}<div class="mb-4" data-controller="code-copy">{{ question.codeHtml|raw }}</div>{% endif %}
+
+            {% if question.type.value == 'courte' %}
+                <div class="field">
+                    <label class="field-label" for="reponse">Ta réponse</label>
+                    <input class="field-input font-mono" id="reponse" name="reponse" value="{{ answer is iterable ? '' : answer }}" maxlength="200" autocomplete="off" spellcheck="false">
+                    <p class="field-help">Les majuscules et les espaces en trop ne comptent pas.</p>
+                </div>
+            {% else %}
+                <p class="muted mb-3 text-sm">{{ question.type.value == 'multiple' ? 'Plusieurs réponses possibles.' : 'Une seule réponse.' }}</p>
+                <div class="flex flex-col gap-2">
+                    {% for choice in question.choices %}
+                        {% set checked = question.type.value == 'multiple' ? (answer is iterable and choice.key in answer) : answer == choice.key %}
+                        <label class="choice">
+                            <input type="{{ question.type.value == 'multiple' ? 'checkbox' : 'radio' }}" name="reponse{{ question.type.value == 'multiple' ? '[]' }}" value="{{ choice.key }}" {% if checked %}checked{% endif %}>
+                            <div class="prose">{{ choice.html|raw }}</div>
+                        </label>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </fieldset>
+
+        <div class="mt-6 flex flex-wrap justify-between gap-3">
+            {% if n > 1 %}<button class="btn btn-secondary" type="submit" name="aller" value="precedente">{{ icon('chevron-left') }}Précédente</button>{% else %}<span></span>{% endif %}
+            {% if n < attempt.total %}
+                <button class="btn btn-primary" type="submit" name="aller" value="suivante">Suivante{{ icon('chevron-right') }}</button>
+            {% else %}
+                <button class="btn btn-primary" type="submit" name="aller" value="recapitulatif">Voir le récapitulatif{{ icon('chevron-right') }}</button>
+            {% endif %}
+        </div>
+    </form>
+    <p class="muted mt-4 text-sm">Tes réponses sont enregistrées à chaque changement de question. À rendre avant le {{ attempt.expiresAt|date('d/m/Y à H:i') }}.</p>
+</div>
+{% endblock %}

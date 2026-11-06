@@ -1,0 +1,83 @@
+{# Constellation d'un thème : vue carte (SVG) et vue liste équivalente. Variables : theme, map, selected, lighting, histories, subject, baseUrl, coursesByItem #}
+<div data-controller="view-toggle">
+    <div class="mb-4 flex flex-wrap items-center justify-between gap-3">
+        <p class="font-semibold">{{ map.validated }} sur {{ map.total }} validés{% if map.total > 0 and map.validated == map.total %} · <span class="badge badge-valide">{{ icon('check', 'icon-sm') }}Constellation complète</span>{% endif %}</p>
+        <div class="flex gap-2" role="group" aria-label="Choix de la vue">
+            <button type="button" class="btn btn-secondary btn-sm" data-view="carte" data-view-toggle-target="button" data-action="view-toggle#choose" aria-pressed="true">{{ icon('waypoints', 'icon-sm') }}Constellation</button>
+            <button type="button" class="btn btn-secondary btn-sm" data-view="liste" data-view-toggle-target="button" data-action="view-toggle#choose" aria-pressed="false">{{ icon('list', 'icon-sm') }}Liste</button>
+        </div>
+    </div>
+
+    {% if map.stars is empty %}
+        {% include 'components/_empty.html.twig' with {message: 'Rien ici pour l\'instant.'} %}
+    {% else %}
+    <div class="grid gap-6 lg:grid-cols-[minmax(0,1fr)_22rem]" data-controller="constellation">
+        <div>
+            <div data-view-toggle-target="map">
+                <div class="constellation">
+                    <svg viewBox="0 0 {{ map.width }} {{ map.height }}" width="{{ map.width }}" height="{{ map.height }}" role="group" aria-label="Constellation {{ theme.title }} : {{ map.validated }} étoiles allumées sur {{ map.total }}. La vue liste donne les mêmes informations.">
+                        <g class="sky-dots" aria-hidden="true">
+                            {% for i in 1..18 %}<circle cx="{{ (i * 97) % map.width }}" cy="{{ (i * 53) % map.height }}" r="1.2"/>{% endfor %}
+                        </g>
+                        <g aria-hidden="true">
+                            {% for link in map.links %}
+                                <line class="sky-link{{ link.lit ? ' is-lit' : '' }}{{ link.from in lighting ? ' is-drawing' : '' }}" x1="{{ link.x1 }}" y1="{{ link.y1 }}" x2="{{ link.x2 }}" y2="{{ link.y2 }}"/>
+                            {% endfor %}
+                        </g>
+                        {% for star in map.stars %}{% include 'progress/_star.html.twig' %}{% endfor %}
+                    </svg>
+                </div>
+                <ul class="muted mt-3 flex flex-wrap gap-x-5 gap-y-2 text-sm" aria-label="Légende">
+                    <li class="flex items-center gap-1">{% include 'components/_type_icon.html.twig' with {type: enum('App\\Referential\\Domain\\ItemType').Knowledge} %}Savoir</li>
+                    <li class="flex items-center gap-1">{% include 'components/_type_icon.html.twig' with {type: enum('App\\Referential\\Domain\\ItemType').Skill} %}Savoir-faire</li>
+                    <li class="flex items-center gap-1">{% include 'components/_type_icon.html.twig' with {type: enum('App\\Referential\\Domain\\ItemType').Competency} %}Compétence</li>
+                    <li class="flex items-center gap-1">{{ icon('check', 'icon-sm') }}remplie : validée</li>
+                    <li class="flex items-center gap-1">{{ icon('circle-dashed', 'icon-sm') }}contour plein : disponible</li>
+                    <li class="flex items-center gap-1">{{ icon('lock', 'icon-sm') }}pointillés : prérequis à valider</li>
+                </ul>
+                {% if map.external is not empty %}
+                    <p class="muted mt-2 text-sm">Prérequis venant d'autres constellations :
+                        {% for e in map.external %}{{ e.item.title }} ({{ e.status.label|lower }}){{ not loop.last ? ', ' }}{% endfor %}.</p>
+                {% endif %}
+            </div>
+
+            <div data-view-toggle-target="list" class="mt-6">
+                <h2 class="sr-only">Vue liste</h2>
+                {% set currentChapter = null %}
+                <ul class="flex flex-col gap-3">
+                    {% for star in map.stars %}
+                        {% if star.item.chapter.code != currentChapter %}
+                            {% set currentChapter = star.item.chapter.code %}
+                            <li><h3 class="mt-2">{{ star.item.chapter.title }}</h3></li>
+                        {% endif %}
+                        <li class="card card-tight flex flex-wrap items-center justify-between gap-3">
+                            <div class="flex min-w-0 items-start gap-3">
+                                <span class="mt-1">{% include 'components/_type_icon.html.twig' with {type: star.item.type} %}</span>
+                                <div>
+                                    <p class="font-semibold">{{ star.item.title }}</p>
+                                    <p class="muted text-sm">{{ star.item.type.label }}{% if star.prerequisites is not empty %} · Prérequis : {% for p in star.prerequisites %}{{ p.item.title }}{{ not loop.last ? ', ' }}{% endfor %}{% endif %}</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                {% include 'components/_status_badge.html.twig' with {status: star.status, state: star.state} %}
+                                <a class="btn btn-ghost btn-sm" href="{{ baseUrl }}?etoile={{ star.item.code }}" data-code="{{ star.item.code }}" data-action="constellation#open">Détails<span class="sr-only"> : {{ star.item.title }}</span></a>
+                            </div>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+
+        <aside class="side-panel" aria-label="Détails de l'étoile" aria-live="polite">
+            {% set any = selected in map.stars|map(s => s.item.code) %}
+            {% for star in map.stars %}
+                {% set visible = selected == star.item.code %}
+                {% include 'progress/_star_detail.html.twig' %}
+            {% endfor %}
+            <div data-constellation-target="detail" data-code="" {% if any %}hidden{% endif %}>
+                <p class="muted">Choisis une étoile (clic ou touche Entrée) pour voir son état, ses prérequis et son historique.</p>
+            </div>
+        </aside>
+    </div>
+    {% endif %}
+</div>

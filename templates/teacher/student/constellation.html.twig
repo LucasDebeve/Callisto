@@ -1,0 +1,9 @@
+{% extends 'layout/teacher.html.twig' %}
+
+{% block title %}{{ theme.title }} · {{ subject.displayName }}{% endblock %}
+
+{% block content %}
+<nav class="breadcrumb" aria-label="Fil d'Ariane"><ol><li><a href="{{ path('teacher_student_show', {id: subject.id}) }}">{{ subject.displayName }}</a></li><li aria-current="page">{{ theme.title }}</li></ol></nav>
+<h1 class="mb-4">{{ theme.title }} <span class="muted text-base font-normal">· {{ subject.displayName }}</span></h1>
+{% include 'progress/_constellation.html.twig' with {baseUrl: path('teacher_student_constellation', {id: subject.id, code: theme.code}), coursesByItem: {}} %}
+{% endblock %}

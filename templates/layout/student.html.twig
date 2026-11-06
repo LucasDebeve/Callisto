@@ -1,0 +1,38 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+<div class="app-shell">
+    <header class="sidebar" data-controller="menu">
+        <div class="flex items-center justify-between gap-2">
+            <a class="logo" href="{{ path('home') }}">{% include 'components/_logo.html.twig' %}<span>Callisto</span></a>
+            <button type="button" class="btn btn-ghost menu-toggle" data-menu-target="button" data-action="menu#toggle" aria-expanded="false" aria-controls="nav-principale">
+                {{ icon('menu') }}<span>Menu</span>
+            </button>
+        </div>
+        <nav id="nav-principale" class="sidebar-nav flex flex-col gap-1" data-menu-target="nav" aria-label="Navigation principale">
+            {% set route = app.current_route %}
+            {% if is_granted('ROLE_STUDENT') %}
+                <a class="nav-link" href="{{ path('student_sky') }}" {% if route starts with 'student_sky' or route == 'student_constellation' %}aria-current="page"{% endif %}>{{ icon('sparkles') }}Mon ciel</a>
+                <a class="nav-link" href="{{ path('course_index') }}" {% if route starts with 'course' or route starts with 'exercise' %}aria-current="page"{% endif %}>{{ icon('book-open') }}Cours</a>
+                <a class="nav-link" href="{{ path('student_history') }}" {% if route == 'student_history' %}aria-current="page"{% endif %}>{{ icon('history') }}Historique</a>
+                <a class="nav-link" href="{{ path('student_preferences') }}" {% if route == 'student_preferences' %}aria-current="page"{% endif %}>{{ icon('settings') }}Préférences</a>
+                <div class="mt-4 border-t border-line pt-4">
+                    <p class="muted px-3 text-sm">{{ app.user.displayName }}{% if app.user.schoolClass %} · {{ app.user.schoolClass.name }}{% endif %}</p>
+                    <a class="nav-link" href="{{ path('app_logout') }}">{{ icon('log-out') }}Se déconnecter</a>
+                </div>
+            {% else %}
+                <a class="nav-link" href="{{ path('course_index') }}" {% if route starts with 'course' or route starts with 'exercise' %}aria-current="page"{% endif %}>{{ icon('book-open') }}Cours</a>
+                <a class="btn btn-primary mt-2" href="{{ path('app_login') }}">{{ icon('log-in') }}Se connecter</a>
+            {% endif %}
+            <button type="button" class="nav-link mt-2" data-controller="theme" data-action="theme#cycle">
+                {{ icon('sun') }}<span data-theme-target="label">Thème : appareil</span>
+            </button>
+            <a class="nav-link text-sm" href="{{ path('legal_notice') }}">{{ icon('shield') }}Confidentialité</a>
+        </nav>
+    </header>
+    <main id="contenu" class="main" tabindex="-1">
+        {% include 'components/_flashes.html.twig' %}
+        {% block content %}{% endblock %}
+    </main>
+</div>
+{% endblock %}

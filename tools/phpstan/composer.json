@@ -1,0 +1,17 @@
+{
+    "name": "callisto/phpstan-tool",
+    "description": "Analyse statique isolée du projet (évite les conflits de dépendances avec l'application).",
+    "type": "project",
+    "license": "proprietary",
+    "require": {
+        "phpstan/phpstan": "^2.1",
+        "phpstan/phpstan-doctrine": "^2.0",
+        "phpstan/phpstan-symfony": "^2.0"
+    },
+    "config": {
+        "allow-plugins": {
+            "phpstan/extension-installer": true
+        },
+        "sort-packages": true
+    }
+}

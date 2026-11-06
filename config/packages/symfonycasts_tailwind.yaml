@@ -1,0 +1,5 @@
+symfonycasts_tailwind:
+    # Version épinglée du binaire autonome Tailwind CSS (S19), téléchargée au premier build.
+    binary_version: 'v4.1.11'
+    # Chemin vers un binaire local (facultatif, par ex. hors ligne).
+    binary: '%env(TAILWIND_BINARY)%'

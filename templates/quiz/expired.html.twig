@@ -1,0 +1,11 @@
+{% extends 'layout/student.html.twig' %}
+
+{% block title %}Tentative expirée{% endblock %}
+
+{% block content %}
+<div class="card max-w-xl">
+    <h1 class="mb-3">Cette tentative a expiré</h1>
+    <p class="mb-4">Le délai pour envoyer tes réponses est dépassé. Pas d'inquiétude : tu peux recommencer autant de fois que tu veux.</p>
+    {% if item %}<a class="btn btn-primary" href="{{ path('quiz_intro', {code: item.code}) }}">{{ icon('rotate-ccw') }}Recommencer</a>{% endif %}
+</div>
+{% endblock %}

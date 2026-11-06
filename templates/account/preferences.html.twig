@@ -1,0 +1,46 @@
+{% extends 'layout/student.html.twig' %}
+
+{% block title %}Préférences{% endblock %}
+
+{% block content %}
+<h1 class="mb-6">Préférences</h1>
+<div class="grid gap-6 lg:grid-cols-2">
+    <section class="card" aria-labelledby="pref-affichage" data-controller="preferences">
+        <h2 id="pref-affichage" class="mb-1">Affichage</h2>
+        <p class="muted mb-4 text-sm">Ces réglages restent dans ce navigateur : rien n'est envoyé au serveur.</p>
+        <fieldset class="mb-4">
+            <legend class="field-label mb-2">Thème</legend>
+            {% for value, label in {auto: 'Suivre l\'appareil', light: 'Clair', dark: 'Sombre'} %}
+                <label class="choice mb-2"><input type="radio" name="theme" value="{{ value }}" data-preferences-target="theme" data-action="preferences#theme"><div>{{ label }}</div></label>
+            {% endfor %}
+        </fieldset>
+        <fieldset class="mb-4">
+            <legend class="field-label mb-2">Taille du texte</legend>
+            {% for value, label in {normal: 'Normale', grand: 'Grande', 'tres-grand': 'Très grande'} %}
+                <label class="choice mb-2"><input type="radio" name="size" value="{{ value }}" data-preferences-target="size" data-action="preferences#size"><div>{{ label }}</div></label>
+            {% endfor %}
+        </fieldset>
+        <fieldset>
+            <legend class="field-label mb-2">Vue des constellations</legend>
+            {% for value, label in {carte: 'Constellation', liste: 'Liste'} %}
+                <label class="choice mb-2"><input type="radio" name="view" value="{{ value }}" data-preferences-target="view" data-action="preferences#view"><div>{{ label }}</div></label>
+            {% endfor %}
+        </fieldset>
+        <p class="field-help mt-2" role="status" data-preferences-target="status"></p>
+    </section>
+
+    <section class="card" aria-labelledby="pref-mdp">
+        <h2 id="pref-mdp" class="mb-4">Mot de passe</h2>
+        <div data-controller="password-rules" data-password-rules-username-value="{{ username }}" data-password-rules-min-value="10">
+            {{ form_start(form) }}
+                {{ form_row(form.currentPassword) }}
+                {% include 'account/_password_rules.html.twig' %}
+                {{ form_row(form.newPassword.first) }}
+                {{ form_row(form.newPassword.second) }}
+                {{ form_rest(form) }}
+                <button class="btn btn-primary" type="submit">Changer mon mot de passe</button>
+            {{ form_end(form) }}
+        </div>
+    </section>
+</div>
+{% endblock %}

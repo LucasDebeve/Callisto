@@ -1,0 +1,6 @@
+{# Jauge d'avancement en SVG (aucun style en ligne, CSP). Le texte chiffré l'accompagne toujours. #}
+{% set pct = value|percent(total) %}
+<svg class="mb-3 block h-2 w-full" viewBox="0 0 100 8" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+    <rect width="100" height="8" rx="4" fill="var(--surface-2)"/>
+    {% if pct > 0 %}<rect width="{{ pct }}" height="8" rx="4" fill="var(--star-fill)"/>{% endif %}
+</svg>

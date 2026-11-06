@@ -1,0 +1,47 @@
+{% extends 'layout/teacher.html.twig' %}
+
+{% block title %}Banque de QCM{% endblock %}
+
+{% block content %}
+<h1 class="mb-2">Banque de QCM</h1>
+<p class="muted mb-6 max-w-[70ch]">Les questions sont rédigées dans le dépôt de contenus (fichiers <code>qcm/*.yaml</code>) puis publiées depuis la page Contenus. Cette vue permet de les relire avec leurs réponses.</p>
+<div class="grid gap-6 xl:grid-cols-[22rem_minmax(0,1fr)]">
+    <nav class="card card-tight" aria-label="Savoirs">
+        {% for level in levels %}
+            {% set items = itemsByLevel[level.code] ?? [] %}
+            {% if items is not empty %}
+                <h2 class="eyebrow mb-2 mt-3">{{ level.title }}</h2>
+                <ul class="toc">
+                    {% for item in items %}
+                        <li><a href="{{ path('teacher_quiz_bank', {savoir: item.code}) }}" {% if selected and selected.code == item.code %}aria-current="page"{% endif %}>{{ item.title }} <span class="muted">({{ counts[item.code] ?? 0 }} q. · {{ item.questionsPerAttempt }}/tentative · {{ item.threshold }} %)</span></a></li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        {% endfor %}
+    </nav>
+    <section>
+        {% if selected is null %}
+            {% include 'components/_empty.html.twig' with {message: 'Choisis un savoir pour relire sa banque.'} %}
+        {% else %}
+            <h2 class="mb-4">{{ selected.title }}</h2>
+            <ol class="flex flex-col gap-4">
+                {% for q in questions %}
+                    <li class="card">
+                        <p class="eyebrow mb-2">{{ q.code }} · {{ q.type.label }}</p>
+                        <div class="prose mb-3">{{ q.promptHtml|raw }}</div>
+                        {% if q.codeHtml %}<div class="mb-3">{{ q.codeHtml|raw }}</div>{% endif %}
+                        {% if q.type.value == 'courte' %}
+                            <p class="text-sm">Réponses acceptées : {% for a in q.acceptedAnswers %}<code>{{ a }}</code>{{ not loop.last ? ', ' }}{% endfor %}</p>
+                        {% else %}
+                            <ul class="flex flex-col gap-1">{% for c in q.choices %}<li class="answer-line {{ c.correct ? 'is-correct' : '' }}">{% if c.correct %}{{ icon('check', 'icon-sm', 'bonne réponse') }}{% else %}<span class="icon-sm inline-block"></span>{% endif %}<div class="prose">{{ c.html|raw }}</div></li>{% endfor %}</ul>
+                        {% endif %}
+                        {% if q.explanationHtml %}<div class="prose mt-3 text-sm"><p class="eyebrow">Explication</p>{{ q.explanationHtml|raw }}</div>{% endif %}
+                    </li>
+                {% else %}
+                    <li>{% include 'components/_empty.html.twig' with {message: 'Aucune question pour ce savoir.'} %}</li>
+                {% endfor %}
+            </ol>
+        {% endif %}
+    </section>
+</div>
+{% endblock %}

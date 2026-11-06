@@ -1,0 +1,77 @@
+{% extends 'layout/student.html.twig' %}
+
+{% block title %}Mon ciel{% endblock %}
+
+{% block content %}
+<header class="mb-6">
+    <p class="eyebrow">{{ level ? level.title : 'Aucun niveau' }}</p>
+    <h1>Mon ciel</h1>
+</header>
+
+{% if constellations is empty %}
+    {% include 'components/_empty.html.twig' with {message: 'Rien ici pour l\'instant.', hint: 'Aucune constellation n\'est encore publiée pour ton niveau.'} %}
+{% else %}
+<div class="grid gap-6 xl:grid-cols-3">
+    <section class="xl:col-span-2" aria-labelledby="titre-constellations">
+        <h2 id="titre-constellations" class="mb-4">Constellations</h2>
+        <ul class="grid gap-4 sm:grid-cols-2">
+            {% for c in constellations %}
+                <li>
+                    <a class="card card-link h-full" href="{{ path('student_constellation', {code: c.theme.code}) }}">
+                        <div class="mb-3 flex items-start justify-between gap-2">
+                            <h3>{{ c.theme.title }}</h3>
+                            {% if c.complete %}<span class="badge badge-valide">{{ icon('check', 'icon-sm') }}Complétée</span>{% endif %}
+                        </div>
+                        <p class="mb-2 font-semibold">{{ c.validated }} sur {{ c.total }} validés</p>
+                        {% include 'components/_meter.html.twig' with {value: c.validated, total: c.total} %}
+                        <ul class="muted flex flex-wrap gap-x-4 gap-y-1 text-sm">
+                            <li>Savoirs {{ c.byType['savoir'].validated }}/{{ c.byType['savoir'].total }}</li>
+                            <li>Savoir-faire {{ c.byType['savoir-faire'].validated }}/{{ c.byType['savoir-faire'].total }}</li>
+                            <li>Compétences {{ c.byType['competence'].validated }}/{{ c.byType['competence'].total }}</li>
+                        </ul>
+                    </a>
+                </li>
+            {% endfor %}
+        </ul>
+    </section>
+
+    <div class="flex flex-col gap-6">
+        <section class="card" aria-labelledby="titre-etapes">
+            <h2 id="titre-etapes" class="mb-1">Prochaines étapes</h2>
+            <p class="muted mb-4 text-sm">Leurs prérequis sont validés : tu peux t'y mettre.</p>
+            {% if nextSteps is empty %}
+                <p>Tout ce qui est accessible est validé. Bravo !</p>
+            {% else %}
+                <ol class="flex flex-col gap-3">
+                    {% for step in nextSteps %}
+                        {% set item = step.item %}
+                        <li class="flex items-start gap-3">
+                            <span class="mt-1 text-accent">{% include 'components/_type_icon.html.twig' with {type: item.type} %}</span>
+                            <div class="min-w-0">
+                                <p class="font-semibold">{{ item.title }}</p>
+                                <p class="muted text-sm">{{ item.type.label }} · {{ item.chapter.theme.title }}</p>
+                                {% if item.type.value == 'savoir' %}
+                                    <a class="btn btn-secondary btn-sm mt-2" href="{{ path('quiz_intro', {code: item.code}) }}">{{ icon('play', 'icon-sm') }}Passer le QCM</a>
+                                {% else %}
+                                    <a class="mt-1 inline-block text-sm" href="{{ path('student_constellation', {code: item.chapter.theme.code, etoile: item.code}) }}">Voir dans la constellation</a>
+                                {% endif %}
+                            </div>
+                        </li>
+                    {% endfor %}
+                </ol>
+            {% endif %}
+        </section>
+
+        <section class="card" aria-labelledby="titre-activite">
+            <h2 id="titre-activite" class="mb-4">Dernière activité</h2>
+            {% if recent is empty %}
+                <p class="muted">Rien ici pour l'instant.</p>
+            {% else %}
+                {% include 'progress/_timeline.html.twig' with {timeline: recent, compact: true} %}
+                <a class="mt-2 inline-block text-sm" href="{{ path('student_history') }}">Tout l'historique</a>
+            {% endif %}
+        </section>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

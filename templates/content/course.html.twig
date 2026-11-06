@@ -1,0 +1,54 @@
+{% extends 'layout/student.html.twig' %}
+
+{% block title %}{{ course.title }}{% endblock %}
+
+{% block content %}
+<div class="grid gap-8 xl:grid-cols-[14rem_minmax(0,1fr)]">
+    <aside class="order-2 xl:order-1" aria-label="Sommaire">
+        <div class="xl:sticky xl:top-6">
+            {% if chapter %}<p class="eyebrow mb-2">{{ chapter.title }}</p>{% endif %}
+            <nav class="toc mb-4" aria-label="Cours du chapitre">
+                {% for c in chapterCourses %}
+                    <a href="{{ path('course_show', {code: c.code}) }}" {% if c.code == course.code %}aria-current="page"{% endif %}>{{ c.title }}</a>
+                {% endfor %}
+                {% for e in exercises %}
+                    <a href="{{ path('exercise_show', {code: e.code}) }}">Exercice : {{ e.title }}</a>
+                {% endfor %}
+            </nav>
+            {% if course.toc is not empty %}
+                <p class="eyebrow mb-2">Dans ce cours</p>
+                <nav class="toc" aria-label="Sections du cours">
+                    {% for h in course.toc %}<a href="#{{ h.id }}" class="{{ h.level > 2 ? 'pl-5' : '' }}">{{ h.text }}</a>{% endfor %}
+                </nav>
+            {% endif %}
+        </div>
+    </aside>
+
+    <article class="order-1 xl:order-2">
+        {% include 'content/_breadcrumb.html.twig' with {current: course.title} %}
+        <h1 class="mb-6">{{ course.title }}</h1>
+        <div class="prose" data-controller="code-copy">{{ course.html|raw }}</div>
+
+        {% if items is not empty %}
+            <section class="card mt-10 max-w-[70ch]" aria-labelledby="qcm-du-cours">
+                <h2 id="qcm-du-cours" class="mb-3 text-lg">Valider les savoirs de ce cours</h2>
+                {% if is_granted('ROLE_STUDENT') %}
+                    <ul class="flex flex-col gap-2">
+                        {% for item in items|filter(i => i.type.value == 'savoir') %}
+                            <li class="flex flex-wrap items-center justify-between gap-2"><span>{{ item.title }}</span><a class="btn btn-secondary btn-sm" href="{{ path('quiz_intro', {code: item.code}) }}">{{ icon('play', 'icon-sm') }}QCM</a></li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p class="mb-3">Connecte-toi pour passer les QCM et suivre ta progression.</p>
+                    <a class="btn btn-primary" href="{{ path('app_login') }}">{{ icon('log-in') }}Se connecter</a>
+                {% endif %}
+            </section>
+        {% endif %}
+
+        <nav class="mt-10 flex max-w-[70ch] flex-wrap justify-between gap-4" aria-label="Cours précédent et suivant">
+            {% if previous %}<a class="btn btn-secondary" href="{{ path('course_show', {code: previous.code}) }}" rel="prev">{{ icon('chevron-left') }}{{ previous.title }}</a>{% else %}<span></span>{% endif %}
+            {% if next %}<a class="btn btn-secondary" href="{{ path('course_show', {code: next.code}) }}" rel="next">{{ next.title }}{{ icon('chevron-right') }}</a>{% endif %}
+        </nav>
+    </article>
+</div>
+{% endblock %}

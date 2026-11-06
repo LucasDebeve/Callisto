@@ -1,0 +1,11 @@
+<nav class="breadcrumb" aria-label="Fil d'Ariane">
+    <ol>
+        <li><a href="{{ path('course_index') }}">Cours</a></li>
+        {% if chapter %}
+            <li>{{ chapter.theme.level.title }}</li>
+            <li>{{ chapter.theme.title }}</li>
+            <li>{{ chapter.title }}</li>
+        {% endif %}
+        <li aria-current="page">{{ current }}</li>
+    </ol>
+</nav>

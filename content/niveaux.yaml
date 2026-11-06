@@ -1,0 +1,8 @@
+# Niveaux couverts, dans l'ordre d'affichage.
+niveaux:
+  - code: snt
+    titre: SNT (Seconde)
+  - code: premiere
+    titre: NSI Première
+  - code: terminale
+    titre: NSI Terminale

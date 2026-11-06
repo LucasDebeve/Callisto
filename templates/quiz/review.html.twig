@@ -1,0 +1,31 @@
+{% extends 'layout/student.html.twig' %}
+
+{% block title %}Récapitulatif{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl">
+    <p class="eyebrow">{{ item ? item.title : attempt.itemCode }}</p>
+    <h1 class="mb-4">Récapitulatif avant envoi</h1>
+    {% set answered = attempt.countAnswered %}
+    <p class="mb-4">Tu as répondu à {{ answered }} question{{ answered > 1 ? 's' }} sur {{ attempt.total }}.</p>
+    {% if answered < attempt.total %}
+        <div class="alert alert-info" role="status">{{ icon('info') }}<p>Une question sans réponse compte comme fausse.</p></div>
+    {% endif %}
+    <ol class="card mb-6 flex flex-col gap-2">
+        {% for i in 1..attempt.total %}
+            <li class="flex items-center justify-between gap-3">
+                <span>Question {{ i }}</span>
+                <span class="flex items-center gap-3">
+                    {% if attempt.isAnswered(i - 1) %}<span class="badge">{{ icon('check', 'icon-sm') }}Répondue</span>{% else %}<span class="badge badge-verrouille">{{ icon('circle-dashed', 'icon-sm') }}Sans réponse</span>{% endif %}
+                    <a href="{{ path('quiz_question', {id: attempt.id, n: i}) }}">Modifier<span class="sr-only"> la question {{ i }}</span></a>
+                </span>
+            </li>
+        {% endfor %}
+    </ol>
+    <form method="post" action="{{ path('quiz_submit', {id: attempt.id}) }}" class="flex flex-wrap gap-3">
+        <input type="hidden" name="_token" value="{{ csrf_token('quiz_submit_' ~ attempt.id) }}">
+        <a class="btn btn-secondary" href="{{ path('quiz_question', {id: attempt.id, n: attempt.total}) }}">{{ icon('chevron-left') }}Revenir aux questions</a>
+        <button class="btn btn-primary" type="submit">Envoyer mes réponses</button>
+    </form>
+</div>
+{% endblock %}

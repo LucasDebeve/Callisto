@@ -1,0 +1,31 @@
+code: snt-internet-protocoles
+titre: Adresses et protocoles
+ordre: 1
+elements:
+  - code: snt-int-adresse-ip
+    type: savoir
+    titre: Connaître le rôle d'une adresse IP
+    description: Une adresse IP identifie une machine sur un réseau.
+    questions_par_tentative: 4
+  - code: snt-int-paquets
+    type: savoir
+    titre: Savoir que les données circulent en paquets
+    questions_par_tentative: 3
+    seuil: 100
+  - code: snt-int-tcp
+    type: savoir
+    titre: Connaître le rôle du protocole TCP
+    prerequis: [snt-int-paquets]
+    questions_par_tentative: 3
+  - code: snt-int-sf-reseau
+    type: savoir-faire
+    titre: Déterminer si deux machines sont sur le même réseau local
+    prerequis: [snt-int-adresse-ip]
+  - code: snt-int-sf-trajet
+    type: savoir-faire
+    titre: Décrire le trajet d'un paquet entre deux machines
+    prerequis: [snt-int-paquets, snt-int-adresse-ip]
+  - code: snt-int-c-reseau
+    type: competence
+    titre: Analyser le fonctionnement d'un petit réseau inconnu
+    prerequis: [snt-int-sf-reseau, snt-int-sf-trajet, snt-int-tcp]

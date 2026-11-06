@@ -1,0 +1,37 @@
+{% extends 'layout/teacher.html.twig' %}
+
+{% block title %}Importer une classe{% endblock %}
+
+{% block content %}
+<nav class="breadcrumb" aria-label="Fil d'Ariane"><ol><li><a href="{{ path('teacher_classes') }}">Classes</a></li><li aria-current="page">Importer</li></ol></nav>
+<h1 class="mb-2">Importer une classe</h1>
+<p class="muted mb-6 max-w-[70ch]">Colle la liste depuis ton tableur : une ligne par élève, trois colonnes séparées par un point-virgule, une virgule ou une tabulation : <strong>identifiant</strong>, <strong>prénom et initiale du nom</strong>, <strong>classe</strong>. Aucune autre donnée n'est demandée (pas d'adresse e-mail).</p>
+
+{% if errors is not empty %}
+    <div class="alert alert-error" role="alert" id="import-errors">{{ icon('triangle-alert') }}
+        <div><p class="font-semibold">Rien n'a été importé :</p><ul class="list-disc pl-5">{% for e in errors %}<li>{{ e }}</li>{% endfor %}</ul></div>
+    </div>
+{% endif %}
+
+<form method="post" class="card max-w-3xl">
+    <input type="hidden" name="_token" value="{{ csrf_token('class_import') }}">
+    <div class="grid gap-4 sm:grid-cols-2">
+        <div class="field">
+            <label class="field-label" for="level">Niveau suivi</label>
+            <select class="field-input" id="level" name="level">
+                {% for level in levels %}<option value="{{ level.code }}" {% if level.code == data.level %}selected{% endif %}>{{ level.title }}</option>{% endfor %}
+            </select>
+        </div>
+        <div class="field">
+            <label class="field-label" for="year">Année scolaire</label>
+            <input class="field-input" id="year" name="year" value="{{ data.year }}" pattern="\d{4}-\d{4}" required>
+        </div>
+    </div>
+    <div class="field">
+        <label class="field-label" for="csv">Liste des élèves</label>
+        <textarea class="field-input" id="csv" name="csv" rows="12" required aria-describedby="csv-help{% if errors is not empty %} import-errors{% endif %}" placeholder="identifiant;prénom et initiale;classe&#10;lea.m;Léa M.;2nde3&#10;tom.b;Tom B.;2nde3">{{ data.csv }}</textarea>
+        <p id="csv-help" class="field-help">60 élèves au maximum par import. Les mots de passe provisoires s'afficheront une seule fois, dans une liste imprimable.</p>
+    </div>
+    <button class="btn btn-primary" type="submit">Importer et générer les mots de passe</button>
+</form>
+{% endblock %}

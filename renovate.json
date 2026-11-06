@@ -1,0 +1,14 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "description": "M12 : mises à jour proposées automatiquement, regroupées une fois par mois. Les correctifs de sécurité passent immédiatement.",
+  "extends": ["config:recommended", ":semanticCommitsDisabled"],
+  "timezone": "Europe/Paris",
+  "schedule": ["before 6am on the first day of the month"],
+  "vulnerabilityAlerts": { "enabled": true, "schedule": ["at any time"] },
+  "packageRules": [
+    { "matchManagers": ["composer"], "groupName": "dépendances PHP" },
+    { "matchManagers": ["dockerfile", "docker-compose"], "groupName": "images Docker" },
+    { "matchManagers": ["github-actions"], "groupName": "actions GitHub" },
+    { "matchPackageNames": ["symfony/*"], "allowedVersions": "<8.0", "description": "Rester sur la branche LTS 7.4" }
+  ]
+}

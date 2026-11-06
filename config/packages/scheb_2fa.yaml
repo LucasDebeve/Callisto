@@ -1,0 +1,15 @@
+# Double authentification TOTP obligatoire pour l'enseignant (S5).
+scheb_two_factor:
+    security_tokens:
+        - Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken
+        - Symfony\Component\Security\Http\Authenticator\Token\PostAuthenticationToken
+    # Un code TOTP ne peut servir qu'une fois.
+    code_reuse_cache: cache.two_factor
+    code_reuse_cache_duration: 90
+    totp:
+        enabled: true
+        issuer: Callisto
+        leeway: 15
+        template: teacher/two_factor.html.twig
+    backup_codes:
+        enabled: true

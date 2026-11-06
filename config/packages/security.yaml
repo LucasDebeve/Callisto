@@ -1,0 +1,74 @@
+security:
+    # S1 : algorithme recommandé par Symfony (Argon2id si disponible, sinon bcrypt).
+    password_hashers:
+        App\Account\Entity\User:
+            algorithm: auto
+
+    # Deux fournisseurs disjoints : un élève ne peut pas se connecter à l'espace enseignant et inversement.
+    providers:
+        students:
+            id: App\Account\Security\StudentUserProvider
+        teachers:
+            id: App\Account\Security\TeacherUserProvider
+
+    firewalls:
+        dev:
+            pattern: ^/(_profiler(/|$)|(_wdt|assets|build)/)
+            security: false
+
+        # S8 : l'espace enseignant est un périmètre séparé (pare-feu et préfixe d'URL propres).
+        teacher:
+            pattern: ^/enseignant
+            lazy: true
+            provider: teachers
+            user_checker: App\Account\Security\UserChecker
+            form_login:
+                login_path: teacher_login
+                check_path: teacher_login
+                default_target_path: teacher_dashboard
+                always_use_default_target_path: false
+                enable_csrf: true
+            login_throttling:
+                limiter: App\Account\Security\LoginRateLimiter
+            two_factor:
+                auth_form_path: teacher_2fa_login
+                check_path: teacher_2fa_login_check
+                default_target_path: teacher_dashboard
+                enable_csrf: true
+            logout:
+                path: teacher_logout
+                target: teacher_login
+
+        main:
+            lazy: true
+            provider: students
+            user_checker: App\Account\Security\UserChecker
+            form_login:
+                login_path: app_login
+                check_path: app_login
+                default_target_path: student_sky
+                enable_csrf: true
+            login_throttling:
+                limiter: App\Account\Security\LoginRateLimiter
+            logout:
+                path: app_logout
+                target: app_login
+
+    # Seule la première règle correspondante s'applique.
+    access_control:
+        - { path: ^/enseignant/connexion$, roles: PUBLIC_ACCESS }
+        - { path: ^/enseignant/deconnexion$, roles: PUBLIC_ACCESS }
+        - { path: ^/enseignant/2fa, roles: IS_AUTHENTICATED_2FA_IN_PROGRESS }
+        - { path: ^/enseignant, roles: ROLE_TEACHER }
+        - { path: ^/$, roles: PUBLIC_ACCESS }
+        - { path: ^/(connexion|deconnexion|cours|exercices|fichiers|mentions-legales|sante)(/|$), roles: PUBLIC_ACCESS }
+        - { path: ^/, roles: ROLE_STUDENT }
+
+when@test:
+    security:
+        password_hashers:
+            App\Account\Entity\User:
+                algorithm: auto
+                cost: 4
+                time_cost: 3
+                memory_cost: 10

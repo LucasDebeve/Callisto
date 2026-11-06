@@ -1,0 +1,49 @@
+# Environnement de développement reproductible en une commande (M10) : docker compose up
+# Puis http://localhost:8080 (comptes affichés dans les journaux du service app).
+# L'application a son propre réseau ; la base n'est jamais publiée sur l'hôte (S17).
+name: callisto
+
+services:
+  app:
+    build: { context: ., target: php-dev }
+    environment:
+      DATABASE_URL: postgresql://callisto:callisto@database:5432/callisto?serverVersion=16&charset=utf8
+      APP_SECRET: dev-secret-not-for-production
+    volumes:
+      - ./:/app
+    depends_on:
+      database: { condition: service_healthy }
+    networks: [callisto]
+
+  caddy:
+    image: caddy:2.8.4-alpine
+    environment:
+      SERVER_NAME: ":80"
+    volumes:
+      - ./docker/caddy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - ./public:/app/public:ro
+    ports:
+      - "127.0.0.1:8080:80"
+    depends_on: [app]
+    networks: [callisto]
+
+  database:
+    image: postgres:16.6-alpine
+    environment:
+      POSTGRES_DB: callisto
+      POSTGRES_USER: callisto
+      POSTGRES_PASSWORD: callisto
+    healthcheck:
+      test: ["CMD", "pg_isready", "-d", "callisto", "-U", "callisto"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    volumes:
+      - database_data:/var/lib/postgresql/data
+    networks: [callisto]
+
+volumes:
+  database_data:
+
+networks:
+  callisto:

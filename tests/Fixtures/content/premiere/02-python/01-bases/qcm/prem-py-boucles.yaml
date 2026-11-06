@@ -1,0 +1,29 @@
+savoir: prem-py-boucles
+questions:
+  - code: prem-bou-q1
+    type: unique
+    enonce: Combien de fois `bonjour` est-il affiché ?
+    code_source: |
+      for i in range(4):
+          print("bonjour")
+    choix:
+      - texte: "4"
+        juste: true
+      - texte: "3"
+      - texte: "5"
+    explication: range(4) produit 0, 1, 2, 3.
+  - code: prem-bou-q2
+    type: unique
+    enonce: Que vaut s à la fin ?
+    code_source: |
+      s = 0
+      i = 1
+      while i <= 3:
+          s = s + i
+          i = i + 1
+    choix:
+      - texte: "6"
+        juste: true
+      - texte: "3"
+      - texte: "10"
+    explication: s = 1 + 2 + 3 = 6.

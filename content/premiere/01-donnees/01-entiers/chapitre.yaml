@@ -1,0 +1,31 @@
+code: prem-donnees-entiers
+titre: Les entiers
+ordre: 1
+elements:
+  - code: prem-ent-binaire
+    type: savoir
+    titre: Connaître l'écriture d'un entier en base 2
+    questions_par_tentative: 3
+  - code: prem-ent-hexa
+    type: savoir
+    titre: Connaître l'écriture hexadécimale
+    prerequis: [prem-ent-binaire]
+    questions_par_tentative: 2
+  - code: prem-ent-relatifs
+    type: savoir
+    titre: Connaître le complément à deux
+    prerequis: [prem-ent-binaire]
+    questions_par_tentative: 2
+    seuil: 50
+  - code: prem-ent-sf-conversion
+    type: savoir-faire
+    titre: Convertir un entier entre les bases 2, 10 et 16
+    prerequis: [prem-ent-binaire, prem-ent-hexa]
+  - code: prem-ent-sf-addition
+    type: savoir-faire
+    titre: Additionner deux entiers en binaire
+    prerequis: [prem-ent-binaire]
+  - code: prem-ent-c-codage
+    type: competence
+    titre: Choisir un codage adapté à un problème nouveau
+    prerequis: [prem-ent-sf-conversion, prem-ent-relatifs]

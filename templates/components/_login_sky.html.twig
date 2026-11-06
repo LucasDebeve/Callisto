@@ -1,0 +1,16 @@
+{# Illustration spatiale de la page de connexion (seul écran où elle est développée). #}
+<svg viewBox="0 0 400 400" class="h-full w-full" aria-hidden="true" focusable="false" preserveAspectRatio="xMidYMid slice">
+    <g class="stars">
+        {% for s in [[30,40,1.2],[80,120,0.8],[150,60,1.5],[220,30,0.9],[300,90,1.1],[360,50,0.7],[50,250,1],[120,330,0.8],[260,300,1.3],[340,240,0.9],[380,350,1.1],[200,370,0.7],[100,190,0.6],[310,170,0.8],[20,360,0.9]] %}
+            <circle cx="{{ s[0] }}" cy="{{ s[1] }}" r="{{ s[2] }}" opacity=".8"/>
+        {% endfor %}
+    </g>
+    <g fill="none" stroke="#8E9BFF" stroke-width="1.5" opacity=".7">
+        <line x1="150" y1="60" x2="220" y2="30"/><line x1="220" y1="30" x2="300" y2="90"/><line x1="300" y1="90" x2="310" y2="170"/>
+    </g>
+    <circle cx="220" cy="210" r="70" fill="#2A2F55" stroke="#8E9BFF" stroke-width="1.5"/>
+    <ellipse cx="220" cy="210" rx="130" ry="34" transform="rotate(-16 220 210)" fill="none" stroke="#8E9BFF" stroke-width="2" stroke-dasharray="5 7"/>
+    <circle cx="335" cy="168" r="16" fill="#FFC845" stroke="#FFE29A" stroke-width="2"/>
+    <circle cx="329" cy="164" r="3" fill="#C99400" opacity=".5"/><circle cx="340" cy="174" r="2" fill="#C99400" opacity=".5"/>
+    {% for p in [[150,60],[220,30],[300,90],[310,170]] %}<circle cx="{{ p[0] }}" cy="{{ p[1] }}" r="4" fill="#FFC845"/>{% endfor %}
+</svg>

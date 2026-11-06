@@ -1,0 +1,39 @@
+{% extends 'layout/teacher.html.twig' %}
+
+{% block title %}Espace enseignant{% endblock %}
+
+{% block content %}
+<h1 class="mb-6">Bonjour {{ app.user.displayName }}</h1>
+<div class="grid gap-6 lg:grid-cols-3">
+    <section class="card lg:col-span-2" aria-labelledby="mes-classes">
+        <div class="mb-4 flex flex-wrap items-center justify-between gap-2">
+            <h2 id="mes-classes">Mes classes</h2>
+            <a class="btn btn-primary btn-sm" href="{{ path('teacher_class_import') }}">Importer une classe</a>
+        </div>
+        {% if classes is empty %}
+            {% include 'components/_empty.html.twig' with {message: 'Rien ici pour l\'instant.', hint: 'Commence par importer la liste d\'une classe.'} %}
+        {% else %}
+            <ul class="flex flex-col gap-3">
+                {% for class in classes %}
+                    <li class="flex flex-wrap items-center justify-between gap-3 border-b border-line pb-3">
+                        <div><a class="font-semibold" href="{{ path('teacher_class_show', {id: class.id}) }}">{{ class.name }}</a> <span class="muted text-sm">{{ class.schoolYear }} · {{ class.levelCode|upper }} · {{ class.students|length }} élèves</span></div>
+                        <div class="flex flex-wrap gap-2">
+                            <a class="btn btn-primary btn-sm" href="{{ path('teacher_entry', {id: class.id}) }}">{{ icon('table', 'icon-sm') }}Saisie</a>
+                            <a class="btn btn-secondary btn-sm" href="{{ path('teacher_class_overview', {id: class.id}) }}">Synthèse</a>
+                        </div>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+    </section>
+    <section class="card" aria-labelledby="contenus">
+        <h2 id="contenus" class="mb-3">Contenus</h2>
+        {% if lastImport %}
+            <p class="mb-3 text-sm">Dernière publication le {{ lastImport.importedAt|date('d/m/Y à H:i') }}{% if lastImport.revision %}, révision <code>{{ lastImport.revision }}</code>{% endif %}.</p>
+        {% else %}
+            <p class="muted mb-3 text-sm">Aucun contenu publié.</p>
+        {% endif %}
+        <a class="btn btn-secondary btn-sm" href="{{ path('teacher_content') }}">Vérifier et publier</a>
+    </section>
+</div>
+{% endblock %}

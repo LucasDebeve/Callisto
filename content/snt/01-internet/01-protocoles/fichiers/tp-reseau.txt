@@ -1,0 +1,4 @@
+TP Réseau — SNT
+1. Relève l'adresse IP de ton poste (commande ipconfig ou ip a).
+2. Compare-la avec celle de ton voisin.
+3. Utilise la commande ping pour tester la connexion avec le serveur du lycée.

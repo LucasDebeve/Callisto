@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="referrer" content="same-origin">
+    <title>{% block title %}Callisto{% endblock %} · Callisto</title>
+    <link rel="icon" href="{{ asset('images/favicon.svg') }}" type="image/svg+xml">
+    <script src="{{ asset('theme-init.js') }}"></script>
+    <link rel="stylesheet" href="{{ asset('styles/app.css') }}">
+    {{ importmap('app', {nonce: csp_nonce()}) }}
+</head>
+<body class="{% block body_class %}{% endblock %}">
+    <a class="skip-link" href="#contenu">Aller au contenu</a>
+    {% block body %}{% endblock %}
+</body>
+</html>

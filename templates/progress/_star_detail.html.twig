@@ -1,0 +1,58 @@
+{# Panneau latéral d'une étoile. Variables : star, histories, subject (élève vu par l'enseignant ou null), coursesByItem #}
+{% set item = star.item %}
+{% set state = star.state %}
+<div data-constellation-target="detail" data-code="{{ item.code }}" {% if not visible %}hidden{% endif %}>
+    <p class="eyebrow flex items-center gap-2">{% include 'components/_type_icon.html.twig' with {type: item.type} %}{{ item.type.label }}</p>
+    <h2 class="mb-2 mt-1">{{ item.title }}</h2>
+    <p class="mb-4">{% include 'components/_status_badge.html.twig' with {status: star.status, state: state} %}</p>
+    {% if item.description %}<p class="mb-4">{{ item.description }}</p>{% endif %}
+    {% if state.validated %}
+        <p class="mb-2 text-sm">Validé le {{ state.validatedOn|date('d/m/Y') }} ({{ state.source.label|lower }}).</p>
+        {% if state.comment %}<p class="mb-4 text-sm"><span class="muted">Commentaire de l'enseignant :</span> {{ state.comment }}</p>{% endif %}
+    {% endif %}
+    {% if star.status.value == 'verrouille' %}
+        <p class="muted mb-4 text-sm">Des prérequis ne sont pas encore validés. Le cours et le QCM restent accessibles.</p>
+    {% endif %}
+
+    <h3 class="mb-2 text-base">Prérequis</h3>
+    {% if star.prerequisites is empty %}
+        <p class="muted mb-4 text-sm">Aucun.</p>
+    {% else %}
+        <ul class="mb-4 flex flex-col gap-2">
+            {% for p in star.prerequisites %}
+                <li class="flex flex-wrap items-center gap-2 text-sm">{% include 'components/_status_badge.html.twig' with {status: p.status} %}<span>{{ p.item.title }}</span></li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+
+    {% if subject is null %}
+        <div class="mb-4 flex flex-wrap gap-2">
+            {% if item.type.value == 'savoir' %}
+                <a class="btn btn-primary" href="{{ path('quiz_intro', {code: item.code}) }}">{{ icon('play') }}{{ state.validated ? 'Repasser le QCM' : 'Passer le QCM' }}</a>
+            {% endif %}
+            {% for course in coursesByItem[item.code] ?? [] %}
+                <a class="btn btn-secondary" href="{{ path('course_show', {code: course.code}) }}">{{ icon('book-open') }}{{ course.title }}</a>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    {% set history = histories[item.code] ?? [] %}
+    <h3 class="mb-2 text-base">Historique</h3>
+    {% if history is empty %}
+        <p class="muted text-sm">Rien ici pour l'instant.</p>
+    {% else %}
+        {% include 'progress/_timeline.html.twig' with {timeline: history, compact: true} %}
+    {% endif %}
+
+    {% if subject is not null and state.validated %}
+        <form method="post" action="{{ path('teacher_student_revoke', {id: subject.id}) }}" class="mt-4 border-t border-line pt-4" data-controller="confirm" data-confirm-message-value="Retirer cette validation ? Le retrait sera enregistré dans l'historique." data-action="submit->confirm#submit">
+            <input type="hidden" name="_token" value="{{ csrf_token('revoke_' ~ subject.id) }}">
+            <input type="hidden" name="item" value="{{ item.code }}">
+            <div class="field">
+                <label class="field-label" for="revoke-comment-{{ item.code }}">Motif du retrait (facultatif)</label>
+                <input class="field-input" id="revoke-comment-{{ item.code }}" name="comment" maxlength="1000">
+            </div>
+            <button class="btn btn-danger" type="submit">{{ icon('rotate-ccw') }}Retirer la validation</button>
+        </form>
+    {% endif %}
+</div>
