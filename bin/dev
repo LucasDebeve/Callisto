@@ -1,0 +1,15 @@
+#!/bin/sh
+# Serveur de développement local : PHP intégré + Tailwind en mode surveillance.
+# Les services (PostgreSQL) tournent dans Docker : composer services. Lancer de préférence via « composer dev ».
+set -eu
+cd "$(dirname "$0")/.."
+HOST="${CALLISTO_DEV_HOST:-127.0.0.1}"
+PORT="${CALLISTO_DEV_PORT:-8000}"
+
+php bin/console tailwind:build --watch &
+TAILWIND_PID=$!
+trap 'kill "$TAILWIND_PID" 2>/dev/null || true' EXIT INT TERM
+
+echo "Callisto : http://$HOST:$PORT"
+# Plusieurs processus pour servir les fichiers et les requêtes en parallèle.
+PHP_CLI_SERVER_WORKERS="${PHP_CLI_SERVER_WORKERS:-4}" php -S "$HOST:$PORT" -t public public/index.php

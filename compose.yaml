@@ -1,38 +1,20 @@
-# Environnement de développement reproductible en une commande (M10) : docker compose up
-# Puis http://localhost:8080 (comptes affichés dans les journaux du service app).
-# L'application a son propre réseau ; la base n'est jamais publiée sur l'hôte (S17).
-name: callisto
+# Services de DÉVELOPPEMENT uniquement : l'application tourne sur le poste (composer dev).
+#   composer setup   # une fois : services, migrations, contenus, démonstration
+#   composer dev     # serveur local sur http://127.0.0.1:8000
+# La production utilise compose.prod.yaml (images de l'application et de Caddy).
+name: callisto-dev
 
 services:
-  app:
-    build: { context: ., target: php-dev }
-    environment:
-      DATABASE_URL: postgresql://callisto:callisto@database:5432/callisto?serverVersion=16&charset=utf8
-      APP_SECRET: dev-secret-not-for-production
-    volumes:
-      - ./:/app
-    depends_on:
-      database: { condition: service_healthy }
-    networks: [callisto]
-
-  caddy:
-    image: caddy:2.8.4-alpine
-    environment:
-      SERVER_NAME: ":80"
-    volumes:
-      - ./docker/caddy/Caddyfile:/etc/caddy/Caddyfile:ro
-      - ./public:/app/public:ro
-    ports:
-      - "127.0.0.1:8080:80"
-    depends_on: [app]
-    networks: [callisto]
-
   database:
     image: postgres:16.6-alpine
     environment:
       POSTGRES_DB: callisto
       POSTGRES_USER: callisto
       POSTGRES_PASSWORD: callisto
+    # Publié sur la boucle locale seulement, pour l'application lancée sur le poste.
+    # Port modifiable si un PostgreSQL local occupe déjà 5432 (adapter alors DATABASE_URL dans .env.local).
+    ports:
+      - "127.0.0.1:${CALLISTO_DB_PORT:-5432}:5432"
     healthcheck:
       test: ["CMD", "pg_isready", "-d", "callisto", "-U", "callisto"]
       interval: 5s
@@ -40,10 +22,6 @@ services:
       retries: 10
     volumes:
       - database_data:/var/lib/postgresql/data
-    networks: [callisto]
 
 volumes:
   database_data:
-
-networks:
-  callisto:

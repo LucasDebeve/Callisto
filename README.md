@@ -9,15 +9,26 @@ les étoiles s'allument au fil des validations.
 - **Contenus** : fichiers Markdown et YAML versionnés dans Git, importés après validation.
 
 Pile technique : PHP 8.3, Symfony 7.4 (LTS), PostgreSQL 16, Twig + Stimulus + AssetMapper + Tailwind CSS,
-Caddy, Docker Compose.
+Docker Compose (services de développement, production derrière Caddy).
 
-## Démarrer en une commande
+## Développement local
+
+L'application tourne sur le poste ; seuls les services (PostgreSQL) sont dans Docker.
+Les images Docker de l'application et Caddy servent uniquement à la production (`compose.prod.yaml`).
+
+Prérequis : PHP 8.3 (extensions intl, pdo_pgsql), Composer, Docker.
 
 ```bash
-docker compose up
+composer install
+composer setup     # services Docker, migrations, contenus, démonstration, feuille de style
+composer dev       # http://127.0.0.1:8000 (serveur PHP + Tailwind en surveillance)
 ```
 
-Puis ouvrir <http://localhost:8080>. Les données de démonstration sont chargées automatiquement :
+`composer dev` démarre aussi les services s'ils sont arrêtés. Pour les arrêter : `docker compose down`.
+Si un PostgreSQL local occupe déjà le port 5432, lancer avec `CALLISTO_DB_PORT=5433` et adapter
+`DATABASE_URL` dans `.env.local`.
+
+Comptes de démonstration :
 
 | Compte | Mot de passe | Accès |
 |---|---|---|
@@ -28,25 +39,14 @@ Puis ouvrir <http://localhost:8080>. Les données de démonstration sont chargé
 Le compte enseignant exige un code TOTP. En développement, le code courant s'obtient avec :
 
 ```bash
-docker compose exec app php bin/console callisto:demo:load --code
-```
-
-### Sans Docker
-
-PHP 8.3 (intl, pdo_pgsql), Composer et PostgreSQL 16 :
-
-```bash
-composer install
-php bin/console doctrine:migrations:migrate -n
-php bin/console callisto:content:import --yes
-php bin/console callisto:demo:load
-php bin/console tailwind:build --watch
+php bin/console callisto:demo:load --code
 ```
 
 ## Qualité
 
 ```bash
-vendor/bin/phpunit                                   # tests (base PostgreSQL de test reconstruite)
+composer test                                        # tests (base PostgreSQL de test reconstruite)
+composer qa                                          # formatage, analyse statique et tests, comme la CI
 composer install --working-dir=tools/phpstan
 tools/phpstan/vendor/bin/phpstan analyse             # analyse statique, niveau 8
 vendor/bin/php-cs-fixer fix                          # formatage
