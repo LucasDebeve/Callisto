@@ -1,0 +1,29 @@
+{% extends 'layout/student.html.twig' %}
+
+{% block title %}{{ exercise.title }}{% endblock %}
+
+{% block content %}
+<article class="max-w-[70ch]">
+    {% include 'content/_breadcrumb.html.twig' with {current: exercise.title} %}
+    <p class="eyebrow">Exercice</p>
+    <h1 class="mb-6">{{ exercise.title }}</h1>
+    <div class="prose" data-controller="code-copy">{{ exercise.statementHtml|raw }}</div>
+
+    {% if exercise.solutionPublished %}
+        <details class="mt-8">
+            <summary class="btn btn-secondary">{{ icon('eye') }}Afficher le corrigé</summary>
+            <div class="card mt-4">
+                <h2 class="mb-4 text-lg">Corrigé</h2>
+                <div class="prose" data-controller="code-copy">{{ exercise.publishedSolutionHtml|raw }}</div>
+            </div>
+        </details>
+    {% elseif exercise.hasSolution %}
+        <p class="muted mt-8">Le corrigé n'est pas encore publié.</p>
+    {% endif %}
+
+    {% if courses is not empty %}
+        <p class="mt-8">Cours associé :
+            {% for c in courses %}<a href="{{ path('course_show', {code: c.code}) }}">{{ c.title }}</a>{{ not loop.last ? ', ' }}{% endfor %}</p>
+    {% endif %}
+</article>
+{% endblock %}

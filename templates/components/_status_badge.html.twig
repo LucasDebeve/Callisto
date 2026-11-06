@@ -1,0 +1,6 @@
+{# Pastille d'état : forme + mot, jamais la couleur seule. Variables : status (ItemStatus), state (ItemState, facultatif) #}
+{% set value = status.value %}
+<span class="badge badge-{{ value }}">
+    {% if value == 'valide' %}{{ icon('check', 'icon-sm') }}{% elseif value == 'disponible' %}{{ icon('circle-dashed', 'icon-sm') }}{% else %}{{ icon('lock', 'icon-sm') }}{% endif %}
+    {{ status.label }}{% if value == 'valide' and state is defined and state and state.validatedOn %} le {{ state.validatedOn|date('d/m/Y') }}{% endif %}
+</span>

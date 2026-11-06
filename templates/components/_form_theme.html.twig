@@ -1,0 +1,42 @@
+{# Thème de formulaire : étiquettes et messages d'erreur liés aux champs (WCAG). #}
+{% use 'form_div_layout.html.twig' %}
+
+{% block form_row %}
+    {%- set widget_attr = {} -%}
+    {%- if help is not empty or errors|length > 0 -%}
+        {%- set widget_attr = {attr: {'aria-describedby': (help is not empty ? id ~ '_help ' : '') ~ (errors|length > 0 ? id ~ '_errors' : '')}} -%}
+    {%- endif -%}
+    <div class="field">
+        {{- form_label(form) -}}
+        {{- form_widget(form, widget_attr) -}}
+        {{- form_help(form) -}}
+        {{- form_errors(form) -}}
+    </div>
+{% endblock %}
+
+{% block repeated_row %}{{ block('form_rows') }}{% endblock %}
+
+{% block form_label %}
+    {%- set label_attr = label_attr|merge({class: (label_attr.class|default('') ~ ' field-label')|trim}) -%}
+    {{- parent() -}}
+{% endblock %}
+
+{% block form_widget_simple %}
+    {%- set attr = attr|merge({class: (attr.class|default('') ~ ' field-input')|trim}) -%}
+    {%- if errors|length > 0 %}{% set attr = attr|merge({'aria-invalid': 'true'}) %}{% endif -%}
+    {{- parent() -}}
+{% endblock %}
+
+{% block form_help %}
+    {%- if help is not empty -%}<p id="{{ id }}_help" class="field-help">{{ help|trans(help_translation_parameters, translation_domain) }}</p>{%- endif -%}
+{% endblock %}
+
+{% block form_errors %}
+    {%- if errors|length > 0 -%}
+        <div id="{{ id }}_errors">
+            {%- for error in errors -%}
+                <p class="field-error">{{ icon('circle-x', 'icon-sm') }}{{ error.message }}</p>
+            {%- endfor -%}
+        </div>
+    {%- endif -%}
+{% endblock %}

@@ -1,0 +1,9 @@
+.git
+var
+vendor
+node_modules
+tools/phpstan/vendor
+.env.local
+.env.*.local
+public/assets
+.phpunit.cache

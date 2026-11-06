@@ -1,0 +1,58 @@
+{% extends 'layout/teacher.html.twig' %}
+
+{% block title %}{{ student.displayName }}{% endblock %}
+
+{% block content %}
+<nav class="breadcrumb" aria-label="Fil d'Ariane"><ol><li><a href="{{ path('teacher_classes') }}">Classes</a></li>{% if student.schoolClass %}<li><a href="{{ path('teacher_class_show', {id: student.schoolClass.id}) }}">{{ student.schoolClass.name }}</a></li>{% endif %}<li aria-current="page">{{ student.displayName }}</li></ol></nav>
+<div class="mb-6 flex flex-wrap items-center justify-between gap-3">
+    <h1>{{ student.displayName }} <span class="muted text-base font-normal"><code>{{ student.username }}</code></span></h1>
+    <a class="btn btn-secondary btn-sm" href="{{ path('teacher_student_export', {id: student.id}) }}">{{ icon('download', 'icon-sm') }}Exporter ses données</a>
+</div>
+
+<div class="grid gap-6 xl:grid-cols-3">
+    <div class="flex flex-col gap-6 xl:col-span-2">
+        <section aria-labelledby="ciel-eleve">
+            <h2 id="ciel-eleve" class="mb-3">Constellations</h2>
+            <ul class="grid gap-4 sm:grid-cols-2">
+                {% for c in constellations %}
+                    <li><a class="card card-link card-tight h-full" href="{{ path('teacher_student_constellation', {id: student.id, code: c.theme.code}) }}">
+                        <h3 class="mb-2">{{ c.theme.title }}</h3>
+                        <p class="mb-2 font-semibold">{{ c.validated }} sur {{ c.total }} validés</p>
+                        {% include 'components/_meter.html.twig' with {value: c.validated, total: c.total} %}
+                    </a></li>
+                {% else %}
+                    <li>{% include 'components/_empty.html.twig' %}</li>
+                {% endfor %}
+            </ul>
+        </section>
+        <section class="card" aria-labelledby="historique-eleve">
+            <h2 id="historique-eleve" class="mb-4">Historique complet</h2>
+            {% if timeline is empty %}<p class="muted">Rien ici pour l'instant.</p>{% else %}{% include 'progress/_timeline.html.twig' with {timeline: timeline, compact: false} %}{% endif %}
+        </section>
+    </div>
+    <div class="flex flex-col gap-6">
+        <section class="card" aria-labelledby="note">
+            <h2 id="note" class="mb-1">Note indicative</h2>
+            <p class="muted mb-3 text-sm">Visible uniquement dans l'espace enseignant. Calcul provisoire (voir le guide).</p>
+            <p class="font-title mb-3 text-3xl font-bold">{{ grade is null ? '—' : grade|number_format(1, ',') ~ ' / 20' }}</p>
+            <ul class="text-sm">
+                <li>Savoirs : {{ counts['savoir'].validated }} sur {{ counts['savoir'].total }}</li>
+                <li>Savoir-faire : {{ counts['savoir-faire'].validated }} sur {{ counts['savoir-faire'].total }}</li>
+                <li>Compétences : {{ counts['competence'].validated }} sur {{ counts['competence'].total }}</li>
+            </ul>
+        </section>
+        <section class="card border-wrong" aria-labelledby="suppression">
+            <h2 id="suppression" class="mb-2">Supprimer le compte</h2>
+            <p class="muted mb-3 text-sm">Efface le compte, ses validations et ses tentatives (droit à l'effacement).</p>
+            <form method="post" action="{{ path('teacher_student_delete', {id: student.id}) }}" data-controller="confirm" data-confirm-message-value="Supprimer définitivement le compte de {{ student.displayName }} ?" data-action="submit->confirm#submit">
+                <input type="hidden" name="_token" value="{{ csrf_token('delete_' ~ student.id) }}">
+                <div class="field">
+                    <label class="field-label" for="confirm-student">Recopie « {{ student.username }} »</label>
+                    <input class="field-input" id="confirm-student" name="confirmation" autocomplete="off" required>
+                </div>
+                <button class="btn btn-danger" type="submit">{{ icon('trash-2') }}Supprimer</button>
+            </form>
+        </section>
+    </div>
+</div>
+{% endblock %}

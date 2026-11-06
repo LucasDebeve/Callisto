@@ -1,0 +1,10 @@
+{# État vide, petite touche spatiale. Variables : message, hint (facultatif) #}
+<div class="empty-state">
+    <svg class="orbit" viewBox="0 0 120 120" aria-hidden="true" focusable="false">
+        <ellipse class="orbit-ring" cx="60" cy="60" rx="52" ry="22" transform="rotate(-18 60 60)"/>
+        <circle class="orbit-planet" cx="60" cy="60" r="16"/>
+        <circle class="orbit-moon" cx="104" cy="44" r="6"/>
+    </svg>
+    <p class="font-semibold text-text">{{ message|default('Rien ici pour l\'instant.') }}</p>
+    {% if hint is defined and hint %}<p class="mt-1">{{ hint }}</p>{% endif %}
+</div>

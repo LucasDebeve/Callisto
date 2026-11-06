@@ -1,0 +1,32 @@
+savoir: snt-int-paquets
+questions:
+  - code: snt-paq-q1
+    type: unique
+    enonce: Comment un fichier est-il envoyé sur Internet ?
+    choix:
+      - texte: D'un seul bloc
+      - texte: Découpé en paquets
+        juste: true
+      - texte: Par courrier électronique uniquement
+    explication: Les données sont découpées en paquets qui voyagent indépendamment.
+  - code: snt-paq-q2
+    type: unique
+    enonce: "On exécute ce programme. Combien de paquets sont créés ?"
+    code_source: |
+      message = "BONJOUR"
+      paquets = [message[i:i + 3] for i in range(0, len(message), 3)]
+      print(len(paquets))
+    choix:
+      - texte: "2"
+      - texte: "3"
+        juste: true
+      - texte: "7"
+    explication: "7 caractères découpés par 3 donnent `BON`, `JOU` et `R` : 3 paquets."
+  - code: snt-paq-q3
+    type: unique
+    enonce: Les paquets d'un même fichier arrivent-ils toujours dans l'ordre ?
+    choix:
+      - texte: Oui, toujours
+      - texte: Non, ils peuvent arriver dans le désordre
+        juste: true
+    explication: Les paquets peuvent prendre des chemins différents et arriver dans le désordre.

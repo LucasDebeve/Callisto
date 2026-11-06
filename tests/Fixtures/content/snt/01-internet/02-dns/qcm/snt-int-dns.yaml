@@ -1,0 +1,16 @@
+savoir: snt-int-dns
+questions:
+  - code: snt-dns-q1
+    type: unique
+    enonce: Que fait un serveur DNS ?
+    choix:
+      - texte: Il traduit un nom de domaine en adresse IP
+        juste: true
+      - texte: Il stocke les pages web
+      - texte: Il chiffre les communications
+    explication: Le DNS est l'annuaire d'Internet.
+  - code: snt-dns-q2
+    type: courte
+    enonce: Quel sigle désigne l'annuaire qui associe noms de domaine et adresses IP ?
+    reponses_acceptees: ["DNS", "Domain Name System"]
+    explication: DNS signifie Domain Name System.

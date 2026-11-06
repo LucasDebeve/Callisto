@@ -1,0 +1,94 @@
+{% extends 'layout/teacher.html.twig' %}
+
+{% block title %}Saisie {{ class.name }}{% endblock %}
+
+{% block content %}
+<nav class="breadcrumb" aria-label="Fil d'Ariane"><ol><li><a href="{{ path('teacher_classes') }}">Classes</a></li><li><a href="{{ path('teacher_class_show', {id: class.id}) }}">{{ class.name }}</a></li><li aria-current="page">Saisie</li></ol></nav>
+<h1 class="mb-4">Tableau de saisie · {{ class.name }}</h1>
+
+<form method="get" class="mb-4 flex flex-wrap items-end gap-3">
+    <div class="field mb-0!">
+        <label class="field-label" for="chapitre">Chapitre</label>
+        <select class="field-input" id="chapitre" name="chapitre">
+            {% for c in chapters %}<option value="{{ c.code }}" {% if chapter and c.code == chapter.code %}selected{% endif %}>{{ c.theme.title }} · {{ c.title }}</option>{% endfor %}
+        </select>
+    </div>
+    <label class="flex min-h-11 items-center gap-2"><input type="checkbox" name="savoirs" value="1" {% if withKnowledge %}checked{% endif %}> Afficher aussi les savoirs</label>
+    <button class="btn btn-secondary" type="submit">Afficher</button>
+</form>
+
+{% if items is empty or students is empty %}
+    {% include 'components/_empty.html.twig' with {message: students is empty ? 'Aucun élève dans cette classe.' : 'Aucun savoir-faire ni compétence dans ce chapitre.'} %}
+{% else %}
+<div data-controller="entry-grid" data-entry-grid-url-value="{{ path('teacher_entry_save') }}" data-entry-grid-token-value="{{ csrf_token('entry') }}">
+    <div class="mb-3 flex flex-wrap items-end justify-between gap-3">
+        <div class="field mb-0!">
+            <label class="field-label" for="date-saisie">Date des validations</label>
+            <input class="field-input" type="date" id="date-saisie" value="{{ today }}" max="{{ today }}" data-entry-grid-target="date">
+        </div>
+        <p class="save-indicator" data-entry-grid-target="indicator" data-state="idle" role="status" aria-live="polite">{{ icon('circle-check', 'icon-sm') }}<span data-text>Un clic sur une case valide ou retire, sans recharger la page.</span></p>
+    </div>
+    <div class="entry-grid-wrap">
+        <table class="entry-grid">
+            <caption class="sr-only">Élèves en lignes, critères en colonnes</caption>
+            <thead>
+                <tr>
+                    <th scope="col" class="sticky-col">Élève</th>
+                    {% for item in items %}
+                        <th scope="col"><span class="flex items-start gap-1">{% include 'components/_type_icon.html.twig' with {type: item.type} %}<span>{{ item.title }}</span></span></th>
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for s in students %}
+                    <tr>
+                        <th scope="row" class="sticky-col"><a href="{{ path('teacher_student_show', {id: s.id}) }}">{{ s.displayName }}</a></th>
+                        {% for item in items %}
+                            {% set st = states[s.id][item.code] %}
+                            <td>
+                                <form method="post" action="{{ path('teacher_entry_save') }}" class="flex items-center gap-1">
+                                    <input type="hidden" name="_token" value="{{ csrf_token('entry') }}">
+                                    <input type="hidden" name="student" value="{{ s.id }}">
+                                    <input type="hidden" name="item" value="{{ item.code }}">
+                                    <input type="hidden" name="action" value="{{ st.validated ? 'retirer' : 'valider' }}">
+                                    <button type="submit" class="cell-toggle" aria-pressed="{{ st.validated ? 'true' : 'false' }}" data-student="{{ s.id }}" data-item="{{ item.code }}" data-action="entry-grid#toggle" {% if st.comment %}title="{{ st.comment }}"{% endif %}>
+                                        <span data-check {% if not st.validated %}hidden{% endif %}>{{ icon('check', 'icon-sm') }}</span>
+                                        <span data-label>{{ st.validated ? st.validatedOn|date('d/m/Y') : 'Non validé' }}</span>
+                                        <span class="sr-only">{{ s.displayName }}, {{ item.title }} : <span data-sr>{{ st.validated ? 'validé, cliquer pour retirer' : 'non validé, cliquer pour valider' }}</span></span>
+                                    </button>
+                                    <button type="button" class="btn btn-ghost btn-sm cell-detail" data-action="entry-grid#detail" data-student="{{ s.id }}" data-item="{{ item.code }}" data-student-name="{{ s.displayName }}" data-item-title="{{ item.title }}" hidden data-entry-grid-detail>
+                                        {{ icon('scroll-text', 'icon-sm', 'Date et commentaire pour ' ~ s.displayName ~ ', ' ~ item.title) }}
+                                    </button>
+                                </form>
+                            </td>
+                        {% endfor %}
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <dialog class="drawer" data-entry-grid-target="drawer" aria-labelledby="drawer-title">
+        <form method="dialog" data-action="submit->entry-grid#saveDetail">
+            <h2 id="drawer-title" class="mb-1" data-entry-grid-target="drawerTitle">Validation détaillée</h2>
+            <p class="font-semibold" data-entry-grid-target="drawerStudent"></p>
+            <p class="muted mb-2" data-entry-grid-target="drawerItem"></p>
+            <p class="mb-4 text-sm" data-entry-grid-target="drawerState"></p>
+            <div class="field">
+                <label class="field-label" for="drawer-date">Date de validation</label>
+                <input class="field-input" type="date" id="drawer-date" max="{{ today }}" data-entry-grid-target="drawerDate">
+            </div>
+            <div class="field">
+                <label class="field-label" for="drawer-comment">Commentaire (visible par l'élève)</label>
+                <textarea class="field-input" id="drawer-comment" maxlength="1000" rows="4" data-entry-grid-target="drawerComment"></textarea>
+            </div>
+            <div class="flex flex-wrap gap-2">
+                <button class="btn btn-primary" type="submit" value="valider">{{ icon('check') }}Valider</button>
+                <button class="btn btn-danger" type="submit" value="retirer">{{ icon('rotate-ccw') }}Retirer</button>
+                <button class="btn btn-ghost" type="button" data-action="entry-grid#closeDrawer">Annuler</button>
+            </div>
+        </form>
+    </dialog>
+</div>
+{% endif %}
+{% endblock %}

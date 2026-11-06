@@ -1,0 +1,37 @@
+{% extends 'base.html.twig' %}
+
+{% block body_class %}space-teacher{% endblock %}
+
+{% block body %}
+<div class="app-shell">
+    <header class="sidebar" data-controller="menu">
+        <div class="flex items-center justify-between gap-2">
+            <a class="logo" href="{{ path('teacher_dashboard') }}">{% include 'components/_logo.html.twig' %}<span>Callisto</span></a>
+            <button type="button" class="btn btn-ghost menu-toggle" data-menu-target="button" data-action="menu#toggle" aria-expanded="false" aria-controls="nav-enseignant">
+                {{ icon('menu') }}<span>Menu</span>
+            </button>
+        </div>
+        <p><span class="space-label">{{ icon('graduation-cap', 'icon-sm') }}Espace enseignant</span></p>
+        <nav id="nav-enseignant" class="sidebar-nav flex flex-col gap-1" data-menu-target="nav" aria-label="Navigation de l'espace enseignant">
+            {% set route = app.current_route %}
+            <a class="nav-link" href="{{ path('teacher_dashboard') }}" {% if route == 'teacher_dashboard' %}aria-current="page"{% endif %}>{{ icon('house') }}Accueil</a>
+            <a class="nav-link" href="{{ path('teacher_classes') }}" {% if route starts with 'teacher_class' or route starts with 'teacher_entry' or route starts with 'teacher_student' %}aria-current="page"{% endif %}>{{ icon('users') }}Classes et saisie</a>
+            <a class="nav-link" href="{{ path('teacher_content') }}" {% if route starts with 'teacher_content' %}aria-current="page"{% endif %}>{{ icon('file-text') }}Contenus</a>
+            <a class="nav-link" href="{{ path('teacher_quiz_bank') }}" {% if route == 'teacher_quiz_bank' %}aria-current="page"{% endif %}>{{ icon('clipboard-list') }}Banque de QCM</a>
+            <a class="nav-link" href="{{ path('teacher_audit') }}" {% if route == 'teacher_audit' %}aria-current="page"{% endif %}>{{ icon('scroll-text') }}Journal d'audit</a>
+            <a class="nav-link" href="{{ path('course_index') }}">{{ icon('book-open') }}Cours publics</a>
+            <div class="mt-4 border-t border-line pt-4">
+                <p class="muted px-3 text-sm">{{ app.user.displayName }}</p>
+                <a class="nav-link" href="{{ path('teacher_logout') }}">{{ icon('log-out') }}Se déconnecter</a>
+            </div>
+            <button type="button" class="nav-link mt-2" data-controller="theme" data-action="theme#cycle">
+                {{ icon('sun') }}<span data-theme-target="label">Thème : appareil</span>
+            </button>
+        </nav>
+    </header>
+    <main id="contenu" class="main" tabindex="-1">
+        {% include 'components/_flashes.html.twig' %}
+        {% block content %}{% endblock %}
+    </main>
+</div>
+{% endblock %}

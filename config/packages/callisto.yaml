@@ -1,0 +1,16 @@
+# Réglages propres à Callisto.
+parameters:
+    callisto.content_dir: '%env(resolve:CALLISTO_CONTENT_DIR)%'
+    callisto.files_dir: '%env(resolve:CALLISTO_FILES_DIR)%'
+    # Durée maximale d'une tentative de QCM avant rejet (S10), en minutes.
+    callisto.quiz.max_duration_minutes: 60
+    # Déconnexion après inactivité (S4), en minutes.
+    callisto.session.idle_timeout_minutes: 45
+    callisto.session.teacher_idle_timeout_minutes: 30
+    # Rétention (R4, points ouverts) : journaux d'audit conservés 12 mois.
+    callisto.retention.audit_months: 12
+    # Calcul indicatif de la note sur 20 (vue enseignant uniquement). Voir docs/adr/0006-note-sur-20.md.
+    callisto.grade.weights:
+        savoir: 1.0
+        savoir-faire: 1.0
+        competence: 1.0

@@ -1,0 +1,37 @@
+{% extends 'layout/student.html.twig' %}
+
+{% block title %}Cours{% endblock %}
+
+{% block content %}
+<h1 class="mb-6">Cours et exercices</h1>
+{% for level in levels %}
+    {% set themes = themesByLevel[level.code] ?? [] %}
+    <section class="mb-10" aria-labelledby="niveau-{{ level.code }}">
+        <h2 id="niveau-{{ level.code }}" class="mb-4">{{ level.title }}</h2>
+        {% if themes is empty %}
+            <p class="muted">Rien ici pour l'instant.</p>
+        {% endif %}
+        <div class="grid gap-4 lg:grid-cols-2">
+            {% for theme in themes %}
+                <div class="card">
+                    <h3 class="mb-3">{{ theme.title }}</h3>
+                    {% for chapter in theme.chapters %}
+                        <h4 class="eyebrow mb-2 mt-4">{{ chapter.title }}</h4>
+                        <ul class="flex flex-col gap-1">
+                            {% for course in courses[chapter.code] ?? [] %}
+                                <li><a class="flex items-center gap-2" href="{{ path('course_show', {code: course.code}) }}">{{ icon('book-open', 'icon-sm') }}{{ course.title }}</a></li>
+                            {% endfor %}
+                            {% for exercise in exercises[chapter.code] ?? [] %}
+                                <li><a class="flex items-center gap-2" href="{{ path('exercise_show', {code: exercise.code}) }}">{{ icon('file-text', 'icon-sm') }}Exercice : {{ exercise.title }}</a></li>
+                            {% endfor %}
+                            {% if (courses[chapter.code] ?? []) is empty and (exercises[chapter.code] ?? []) is empty %}<li class="muted text-sm">Rien ici pour l'instant.</li>{% endif %}
+                        </ul>
+                    {% endfor %}
+                </div>
+            {% endfor %}
+        </div>
+    </section>
+{% else %}
+    {% include 'components/_empty.html.twig' %}
+{% endfor %}
+{% endblock %}

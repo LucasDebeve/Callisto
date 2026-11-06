@@ -1,0 +1,67 @@
+{% extends 'layout/teacher.html.twig' %}
+
+{% block title %}Classe {{ class.name }}{% endblock %}
+
+{% block content %}
+<nav class="breadcrumb" aria-label="Fil d'Ariane"><ol><li><a href="{{ path('teacher_classes') }}">Classes</a></li><li aria-current="page">{{ class.name }}</li></ol></nav>
+<div class="mb-6 flex flex-wrap items-center justify-between gap-3">
+    <h1>{{ class.name }} <span class="muted text-base font-normal">{{ class.schoolYear }} · {{ class.levelCode|upper }}</span></h1>
+    {% if not class.archived %}
+        <div class="flex flex-wrap gap-2">
+            <a class="btn btn-primary" href="{{ path('teacher_entry', {id: class.id}) }}">{{ icon('table') }}Tableau de saisie</a>
+            <a class="btn btn-secondary" href="{{ path('teacher_class_overview', {id: class.id}) }}">Synthèse par élément</a>
+        </div>
+    {% endif %}
+</div>
+{% if class.archived %}<div class="alert alert-info">{{ icon('archive') }}<p>Classe archivée le {{ class.archivedAt|date('d/m/Y') }} : les élèves ne peuvent plus se connecter.</p></div>{% endif %}
+
+<section class="mb-8" aria-labelledby="eleves">
+    <h2 id="eleves" class="mb-3">Élèves</h2>
+    {% if students is empty %}
+        {% include 'components/_empty.html.twig' %}
+    {% else %}
+    <div class="table-wrap card p-0!">
+        <table class="data-table">
+            <thead><tr><th scope="col">Élève</th><th scope="col">Identifiant</th><th scope="col">Dernière connexion</th><th scope="col">Mot de passe</th></tr></thead>
+            <tbody>
+                {% for s in students %}
+                    <tr>
+                        <th scope="row"><a href="{{ path('teacher_student_show', {id: s.id}) }}">{{ s.displayName }}</a></th>
+                        <td><code>{{ s.username }}</code></td>
+                        <td>{{ s.lastLoginAt ? s.lastLoginAt|date('d/m/Y H:i') : 'jamais' }}</td>
+                        <td>
+                            {% if s.mustChangePassword %}<span class="badge">provisoire</span>{% endif %}
+                            <form method="post" action="{{ path('teacher_student_reset', {id: s.id}) }}" class="inline" data-controller="confirm" data-confirm-message-value="Générer un nouveau mot de passe provisoire pour {{ s.displayName }} ? Vérifie d'abord son identité." data-action="submit->confirm#submit">
+                                <input type="hidden" name="_token" value="{{ csrf_token('reset_' ~ s.id) }}">
+                                <button class="btn btn-ghost btn-sm" type="submit">{{ icon('key-round', 'icon-sm') }}Réinitialiser<span class="sr-only"> le mot de passe de {{ s.displayName }}</span></button>
+                            </form>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% endif %}
+</section>
+
+<section class="card border-wrong" aria-labelledby="fin-annee">
+    <h2 id="fin-annee" class="mb-2">Fin d'année</h2>
+    <p class="muted mb-4 text-sm">L'archivage bloque les connexions et conserve les données. La suppression efface les comptes, validations et tentatives de tous les élèves de la classe.</p>
+    <div class="flex flex-wrap items-end gap-6">
+        {% if not class.archived %}
+            <form method="post" action="{{ path('teacher_class_archive', {id: class.id}) }}" data-controller="confirm" data-confirm-message-value="Archiver la classe {{ class.name }} ?" data-action="submit->confirm#submit">
+                <input type="hidden" name="_token" value="{{ csrf_token('class_archive_' ~ class.id) }}">
+                <button class="btn btn-secondary" type="submit">{{ icon('archive') }}Archiver la classe</button>
+            </form>
+        {% endif %}
+        <form method="post" action="{{ path('teacher_class_delete', {id: class.id}) }}" class="flex flex-wrap items-end gap-2" data-controller="confirm" data-confirm-message-value="Supprimer définitivement la classe et toutes les données de ses élèves ?" data-action="submit->confirm#submit">
+            <input type="hidden" name="_token" value="{{ csrf_token('class_delete_' ~ class.id) }}">
+            <div class="field mb-0!">
+                <label class="field-label" for="confirm-class">Recopie « {{ class.name }} » pour confirmer</label>
+                <input class="field-input" id="confirm-class" name="confirmation" autocomplete="off" required>
+            </div>
+            <button class="btn btn-danger" type="submit">{{ icon('trash-2') }}Supprimer la classe</button>
+        </form>
+    </div>
+</section>
+{% endblock %}

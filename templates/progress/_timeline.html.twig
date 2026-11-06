@@ -1,0 +1,26 @@
+{# Chronologie : tentatives et validations. Variables : timeline, compact (bool) #}
+<ol class="timeline">
+    {% for e in timeline %}
+        {% set title = e.item ? e.item.title : e.itemCode %}
+        {% if e.kind == 'tentative' %}
+            {% set a = e.attempt %}
+            <li class="{{ a.passed ? 'is-valide' : '' }}">
+                <p class="text-sm muted"><time datetime="{{ e.at|date('c') }}">{{ e.at|date('d/m/Y à H:i') }}</time> · QCM</p>
+                <p><span class="font-semibold">{{ title }}</span>{% if e.item and e.item.archived %} <span class="badge">archivé</span>{% endif %}</p>
+                <p class="text-sm">Score {{ a.score }} sur {{ a.total }} · {% if a.passed %}<span class="verdict is-right">{{ icon('check', 'icon-sm') }}seuil atteint</span>{% else %}<span class="verdict is-wrong">{{ icon('x', 'icon-sm') }}seuil non atteint</span>{% endif %}
+                    {% if is_granted('ROLE_STUDENT') %} · <a href="{{ path('quiz_result', {id: a.id}) }}">correction</a>{% endif %}</p>
+            </li>
+        {% else %}
+            {% set v = e.validation %}
+            <li class="{{ e.kind == 'validation' ? 'is-valide' : 'is-retrait' }}">
+                <p class="text-sm muted"><time datetime="{{ e.at|date('c') }}">{{ e.at|date('d/m/Y à H:i') }}</time> · {{ v.source.label }}</p>
+                <p>
+                    {% if e.kind == 'validation' %}<span class="verdict is-right">{{ icon('check', 'icon-sm') }}Validé</span>{% else %}<span class="verdict is-wrong">{{ icon('rotate-ccw', 'icon-sm') }}Validation retirée</span>{% endif %}
+                    · <span class="font-semibold">{{ title }}</span>{% if e.item %} <span class="muted text-sm">({{ e.item.type.label|lower }})</span>{% endif %}
+                </p>
+                {% if e.kind == 'validation' and v.source.value == 'enseignant' %}<p class="text-sm">Date de validation : {{ v.validatedOn|date('d/m/Y') }}</p>{% endif %}
+                {% if v.comment %}<p class="text-sm"><span class="muted">Commentaire de l'enseignant :</span> {{ v.comment }}</p>{% endif %}
+            </li>
+        {% endif %}
+    {% endfor %}
+</ol>

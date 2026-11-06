@@ -1,0 +1,13 @@
+{% extends 'layout/student.html.twig' %}
+
+{% block title %}{{ theme.title }}{% endblock %}
+
+{% block content %}
+<nav class="breadcrumb" aria-label="Fil d'Ariane"><ol><li><a href="{{ path('student_sky') }}">Mon ciel</a></li><li aria-current="page">{{ theme.title }}</li></ol></nav>
+<h1 class="mb-1">{{ theme.title }}</h1>
+{% if theme.description %}<p class="muted mb-4">{{ theme.description }}</p>{% endif %}
+{% if lighting is not empty %}
+    <div class="alert alert-success" role="status">{{ icon('sparkles') }}<p>Savoir validé. Une étoile de plus dans cette constellation.</p></div>
+{% endif %}
+{% include 'progress/_constellation.html.twig' with {baseUrl: path('student_constellation', {code: theme.code})} %}
+{% endblock %}

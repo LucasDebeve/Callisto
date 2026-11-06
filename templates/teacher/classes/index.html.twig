@@ -1,0 +1,31 @@
+{% extends 'layout/teacher.html.twig' %}
+
+{% block title %}Classes{% endblock %}
+
+{% block content %}
+<div class="mb-6 flex flex-wrap items-center justify-between gap-3">
+    <h1>Classes et comptes</h1>
+    <a class="btn btn-primary" href="{{ path('teacher_class_import') }}">Importer une classe</a>
+</div>
+{% if classes is empty %}
+    {% include 'components/_empty.html.twig' %}
+{% else %}
+    <div class="table-wrap card p-0!">
+        <table class="data-table">
+            <thead><tr><th scope="col">Classe</th><th scope="col">Année</th><th scope="col">Niveau</th><th scope="col">Élèves</th><th scope="col">État</th><th scope="col"><span class="sr-only">Actions</span></th></tr></thead>
+            <tbody>
+                {% for class in classes %}
+                    <tr>
+                        <th scope="row"><a href="{{ path('teacher_class_show', {id: class.id}) }}">{{ class.name }}</a></th>
+                        <td>{{ class.schoolYear }}</td>
+                        <td>{{ class.levelCode|upper }}</td>
+                        <td>{{ class.students|length }}</td>
+                        <td>{% if class.archived %}<span class="badge badge-verrouille">{{ icon('archive', 'icon-sm') }}Archivée</span>{% else %}<span class="badge">Active</span>{% endif %}</td>
+                        <td>{% if not class.archived %}<a href="{{ path('teacher_entry', {id: class.id}) }}">Saisie</a>{% endif %}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endif %}
+{% endblock %}

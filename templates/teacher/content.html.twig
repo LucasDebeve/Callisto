@@ -1,0 +1,42 @@
+{% extends 'layout/teacher.html.twig' %}
+
+{% block title %}Contenus{% endblock %}
+
+{% block content %}
+<h1 class="mb-2">Contenus</h1>
+<p class="muted mb-6 max-w-[70ch]">Cours, exercices, QCM et référentiel sont lus dans le dépôt de contenus présent sur le serveur. Le rapport ci-dessous est calculé avant toute publication ; aucune validation d'élève n'est jamais supprimée.</p>
+
+<div class="grid gap-6 xl:grid-cols-3">
+    <section class="card xl:col-span-2" aria-labelledby="rapport">
+        <h2 id="rapport" class="mb-4">Rapport de vérification</h2>
+        {% if report.valid %}
+            <div class="alert alert-success" role="status">{{ icon('circle-check') }}<p>Contenu valide, prêt à être publié.</p></div>
+        {% else %}
+            <div class="alert alert-error" role="alert">{{ icon('triangle-alert') }}<p>{{ report.errors|length }} erreur(s) : la publication est bloquée.</p></div>
+        {% endif %}
+        <dl class="mb-6 grid grid-cols-2 gap-x-6 gap-y-1 sm:grid-cols-4">
+            {% for label, n in report.stats %}<div><dt class="muted text-sm">{{ label|capitalize }}</dt><dd class="font-semibold">{{ n }}</dd></div>{% endfor %}
+        </dl>
+        {% for title, list in {'Erreurs': report.errors, 'Avertissements': report.warnings, 'Sera archivé (validations conservées)': report.archived} %}
+            {% if list is not empty %}
+                <h3 class="mb-2 mt-4">{{ title }}</h3>
+                <ul class="list-disc pl-5 text-sm">{% for line in list %}<li>{{ line }}</li>{% endfor %}</ul>
+            {% endif %}
+        {% endfor %}
+        {% if report.valid %}
+            <form method="post" action="{{ path('teacher_content_publish') }}" class="mt-6" data-controller="confirm" data-confirm-message-value="Publier ce contenu ?" data-action="submit->confirm#submit">
+                <input type="hidden" name="_token" value="{{ csrf_token('content_publish') }}">
+                <button class="btn btn-primary" type="submit">Publier</button>
+            </form>
+        {% endif %}
+    </section>
+    <section class="card" aria-labelledby="publications">
+        <h2 id="publications" class="mb-4">Publications</h2>
+        {% for import in imports %}
+            <p class="text-sm">{{ import.importedAt|date('d/m/Y H:i') }} · {{ import.importedBy ?? '?' }}{% if import.revision %} · <code>{{ import.revision }}</code>{% endif %}</p>
+        {% else %}
+            <p class="muted">Rien ici pour l'instant.</p>
+        {% endfor %}
+    </section>
+</div>
+{% endblock %}

@@ -1,0 +1,51 @@
+{% extends 'layout/student.html.twig' %}
+
+{% block title %}QCM · {{ item.title }}{% endblock %}
+
+{% block content %}
+<nav class="breadcrumb" aria-label="Fil d'Ariane"><ol><li><a href="{{ path('student_sky') }}">Mon ciel</a></li><li><a href="{{ path('student_constellation', {code: item.chapter.theme.code, etoile: item.code}) }}">{{ item.chapter.theme.title }}</a></li><li aria-current="page">QCM</li></ol></nav>
+<div class="grid max-w-5xl gap-6 lg:grid-cols-[minmax(0,1fr)_20rem]">
+    <section class="card">
+        <p class="eyebrow">Savoir</p>
+        <h1 class="mb-3">{{ item.title }}</h1>
+        {% if state.validated %}
+            <p class="mb-4"><span class="badge badge-valide">{{ icon('check', 'icon-sm') }}Validé le {{ state.validatedOn|date('d/m/Y') }}</span></p>
+        {% endif %}
+        {% if available %}
+            <ul class="mb-6 flex flex-col gap-1">
+                <li>{{ item.questionsPerAttempt }} questions tirées au hasard dans la banque.</li>
+                <li>Seuil de validation : {{ item.threshold }} % de bonnes réponses.</li>
+                <li>Tentatives illimitées, correction détaillée après chaque envoi.</li>
+            </ul>
+            {% if open %}
+                <a class="btn btn-primary" href="{{ path('quiz_question', {id: open.id, n: 1}) }}">{{ icon('play') }}Reprendre la tentative en cours</a>
+            {% else %}
+                <form method="post" action="{{ path('quiz_start', {code: item.code}) }}">
+                    <input type="hidden" name="_token" value="{{ csrf_token('quiz_start') }}">
+                    <button class="btn btn-primary" type="submit">{{ icon('play') }}{{ attempts is empty ? 'Commencer le QCM' : 'Nouvelle tentative' }}</button>
+                </form>
+            {% endif %}
+        {% else %}
+            {% include 'components/_empty.html.twig' with {message: 'Le QCM de ce savoir n\'est pas encore disponible.'} %}
+        {% endif %}
+        {% if courses is not empty %}
+            <p class="mt-6 text-sm">Pour réviser : {% for c in courses %}<a href="{{ path('course_show', {code: c.code}) }}">{{ c.title }}</a>{{ not loop.last ? ', ' }}{% endfor %}</p>
+        {% endif %}
+    </section>
+    <aside class="card" aria-labelledby="tentatives">
+        <h2 id="tentatives" class="mb-3 text-lg">Tes tentatives</h2>
+        {% if attempts is empty %}
+            <p class="muted">Rien ici pour l'instant.</p>
+        {% else %}
+            <ol class="flex flex-col gap-2">
+                {% for a in attempts %}
+                    <li class="flex items-center justify-between gap-2 text-sm">
+                        <span>{{ a.submittedAt|date('d/m/Y H:i') }}</span>
+                        <a href="{{ path('quiz_result', {id: a.id}) }}">{{ a.score }}/{{ a.total }} {% if a.passed %}{{ icon('check', 'icon-sm', 'seuil atteint') }}{% else %}{{ icon('x', 'icon-sm', 'seuil non atteint') }}{% endif %}</a>
+                    </li>
+                {% endfor %}
+            </ol>
+        {% endif %}
+    </aside>
+</div>
+{% endblock %}

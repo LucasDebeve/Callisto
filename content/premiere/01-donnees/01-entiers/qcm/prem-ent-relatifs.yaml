@@ -1,0 +1,19 @@
+savoir: prem-ent-relatifs
+questions:
+  - code: prem-rel-q1
+    type: unique
+    enonce: Sur 8 bits en complément à deux, que vaut `11111111` ?
+    choix:
+      - texte: "-1"
+        juste: true
+      - texte: "255"
+      - texte: "-127"
+    explication: En complément à deux, tous les bits à 1 représentent -1.
+  - code: prem-rel-q2
+    type: unique
+    enonce: Quel bit indique le signe en complément à deux ?
+    choix:
+      - texte: Le bit de poids fort (le plus à gauche)
+        juste: true
+      - texte: Le bit de poids faible (le plus à droite)
+    explication: Le bit de poids fort vaut 1 pour un nombre négatif.

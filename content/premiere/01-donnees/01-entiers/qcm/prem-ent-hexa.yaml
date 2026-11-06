@@ -1,0 +1,16 @@
+savoir: prem-ent-hexa
+questions:
+  - code: prem-hex-q1
+    type: unique
+    enonce: Combien de bits représente un chiffre hexadécimal ?
+    choix:
+      - texte: "4"
+        juste: true
+      - texte: "8"
+      - texte: "16"
+    explication: 16 = 2⁴, donc un chiffre hexadécimal correspond à 4 bits.
+  - code: prem-hex-q2
+    type: courte
+    enonce: Écris 15 en base 16.
+    reponses_acceptees: ["F", "0xF"]
+    explication: Après 9 viennent A (10), B, C, D, E et F (15).

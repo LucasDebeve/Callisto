@@ -1,0 +1,33 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Connexion enseignant{% endblock %}
+{% block body_class %}space-teacher{% endblock %}
+
+{% block body %}
+<main id="contenu" class="flex min-h-screen items-center justify-center p-6" tabindex="-1">
+    <div class="card w-full max-w-sm">
+        <p class="logo mb-2">{% include 'components/_logo.html.twig' %}<span>Callisto</span></p>
+        <p class="mb-6"><span class="space-label">{{ icon('graduation-cap', 'icon-sm') }}Espace enseignant</span></p>
+        <h1 class="mb-6">Connexion</h1>
+        {% if expired %}<div class="alert alert-info" role="status">{{ icon('info') }}<p>Session expirée après inactivité.</p></div>{% endif %}
+        {% if error %}
+            <div class="alert alert-error" role="alert" id="login-error">{{ icon('triangle-alert') }}
+                <p>{% if error.messageKey starts with 'Too many' %}Trop d'essais. Patiente quelques minutes.{% else %}Identifiant ou mot de passe incorrect.{% endif %}</p>
+            </div>
+        {% endif %}
+        <form method="post" action="{{ path('teacher_login') }}">
+            <div class="field">
+                <label class="field-label" for="username">Identifiant</label>
+                <input class="field-input" id="username" name="_username" value="{{ last_username }}" autocomplete="username" required autofocus>
+            </div>
+            <div class="field">
+                <label class="field-label" for="password">Mot de passe</label>
+                <input class="field-input" type="password" id="password" name="_password" autocomplete="current-password" required>
+            </div>
+            <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
+            <button class="btn btn-primary w-full" type="submit">{{ icon('log-in') }}Continuer</button>
+        </form>
+        <p class="muted mt-4 text-sm">Un code de double authentification sera demandé ensuite.</p>
+    </div>
+</main>
+{% endblock %}

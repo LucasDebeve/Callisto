@@ -1,0 +1,6 @@
+{# Forme du type d'élément, en petit (cercle, losange, étoile à quatre branches). Variable : type (ItemType) #}
+<svg class="icon-sm" viewBox="-12 -12 24 24" aria-hidden="true" focusable="false">
+    {% if type.value == 'savoir' %}<circle r="8" fill="none" stroke="currentColor" stroke-width="2.5"/>
+    {% elseif type.value == 'savoir-faire' %}<path d="M0 -9 L9 0 L0 9 L-9 0 Z" fill="none" stroke="currentColor" stroke-width="2.5"/>
+    {% else %}<path d="M0 -10 L2.6 -2.6 L10 0 L2.6 2.6 L0 10 L-2.6 2.6 L-10 0 L-2.6 -2.6 Z" fill="none" stroke="currentColor" stroke-width="2"/>{% endif %}
+</svg>

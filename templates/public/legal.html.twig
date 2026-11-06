@@ -1,0 +1,34 @@
+{% extends 'layout/student.html.twig' %}
+
+{% block title %}Mentions légales et confidentialité{% endblock %}
+
+{% block content %}
+<article class="prose">
+    <h1>Mentions légales et confidentialité</h1>
+    <p><em>Texte à compléter et à faire valider par le chef d'établissement et le délégué à la protection des données de l'académie avant la mise en service.</em></p>
+
+    <h2>Qui est responsable ?</h2>
+    <p>Callisto est une plateforme de suivi de progression en SNT et NSI utilisée au sein de l'établissement. Le responsable du traitement est le chef d'établissement. [Nom de l'établissement, adresse, contact du DPD académique à compléter.]</p>
+
+    <h2>Quelles données, et pourquoi ?</h2>
+    <div class="table-wrap"><table>
+        <thead><tr><th>Donnée</th><th>Pourquoi</th><th>Durée de conservation</th></tr></thead>
+        <tbody>
+            <tr><td>Identifiant, prénom et initiale du nom, classe</td><td>T'identifier</td><td>Jusqu'à la fin de l'année scolaire, puis suppression</td></tr>
+            <tr><td>Mot de passe (uniquement sous forme chiffrée irréversible)</td><td>Te connecter</td><td>Tant que le compte existe</td></tr>
+            <tr><td>Validations, tentatives de QCM, commentaires de l'enseignant</td><td>Suivre ta progression</td><td>Même durée que le compte</td></tr>
+            <tr><td>Journaux de connexion (date, adresse IP)</td><td>Sécurité de la plateforme</td><td>12 mois</td></tr>
+        </tbody>
+    </table></div>
+    <p>Aucune adresse e-mail, date de naissance ni photo n'est demandée.</p>
+
+    <h2>Cookies et traceurs</h2>
+    <p>Le seul cookie est le cookie de session, indispensable pour rester connecté. Il n'y a aucun outil de mesure d'audience ni traceur. Tes préférences d'affichage (thème, taille du texte, vue) restent dans ton navigateur et ne sont pas envoyées au serveur.</p>
+
+    <h2>Où sont les données ?</h2>
+    <p>Sur un serveur hébergé en France chez OVH. Les requêtes transitent par Cloudflare (sous-traitant), qui protège le serveur. Les sauvegardes sont chiffrées.</p>
+
+    <h2>Tes droits</h2>
+    <p>Tu peux demander à ton enseignant d'accéder à tes données, de les exporter ou de les supprimer. Tu peux aussi contacter le délégué à la protection des données de l'académie, ou la CNIL.</p>
+</article>
+{% endblock %}

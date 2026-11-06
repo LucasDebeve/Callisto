@@ -1,0 +1,10 @@
+/* Coloration syntaxique (classes produites côté serveur par highlight.php), contrastes AA dans les deux thèmes. */
+:root { --code-bg: #F3F4FA; --code-text: #1E2235; --hl-keyword: #7A2BB5; --hl-string: #1E6B3A; --hl-number: #A33A00; --hl-comment: #5B6178; --hl-title: #2645B8; --hl-builtin: #8A4B00; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --code-bg: #161927; --code-text: #E3E6F5; --hl-keyword: #D3A6FF; --hl-string: #8EDBA8; --hl-number: #FFB38A; --hl-comment: #9AA0BD; --hl-title: #9DB4FF; --hl-builtin: #FFD27A; } }
+:root[data-theme="dark"] { --code-bg: #161927; --code-text: #E3E6F5; --hl-keyword: #D3A6FF; --hl-string: #8EDBA8; --hl-number: #FFB38A; --hl-comment: #9AA0BD; --hl-title: #9DB4FF; --hl-builtin: #FFD27A; }
+.hljs-keyword, .hljs-selector-tag, .hljs-literal { color: var(--hl-keyword); font-weight: 700; }
+.hljs-string, .hljs-regexp, .hljs-addition { color: var(--hl-string); }
+.hljs-number, .hljs-symbol { color: var(--hl-number); }
+.hljs-comment, .hljs-quote, .hljs-meta { color: var(--hl-comment); font-style: italic; }
+.hljs-title, .hljs-section, .hljs-function .hljs-title { color: var(--hl-title); font-weight: 700; }
+.hljs-built_in, .hljs-type, .hljs-params { color: var(--hl-builtin); }

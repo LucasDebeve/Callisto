@@ -1,0 +1,66 @@
+# Production sur le VPS : voir docs/exploitation.md.
+#   CALLISTO_VERSION=<tag> docker compose -f compose.prod.yaml up -d
+# Secrets fournis par l'environnement (.env.prod.local hors Git, droits 600) — S18.
+# La base n'a aucun port publié et vit sur un réseau interne ; seul Caddy écoute sur l'hôte (S17).
+name: callisto
+
+services:
+  app:
+    image: ${CALLISTO_IMAGE:-ghcr.io/lucasdebeve/callisto-app}:${CALLISTO_VERSION:?version à déployer}
+    restart: unless-stopped
+    env_file: [.env.prod.local]
+    environment:
+      APP_ENV: prod
+      CALLISTO_CONTENT_DIR: /content
+      CALLISTO_FILES_DIR: /data/content-files
+    volumes:
+      - content_files:/data/content-files
+      - app_var:/app/var/share
+      - ${CALLISTO_CONTENT_PATH:-./contenus}:/content:ro
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:true"]
+    depends_on:
+      database: { condition: service_healthy }
+    networks: [backend, frontend]
+
+  caddy:
+    image: ${CALLISTO_CADDY_IMAGE:-ghcr.io/lucasdebeve/callisto-caddy}:${CALLISTO_VERSION:?version à déployer}
+    restart: unless-stopped
+    environment:
+      SERVER_NAME: ${SERVER_NAME:?nom de domaine}
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - caddy_data:/data
+      - caddy_config:/config
+    cap_drop: [ALL]
+    cap_add: [NET_BIND_SERVICE]
+    security_opt: ["no-new-privileges:true"]
+    networks: [frontend]
+
+  database:
+    image: postgres:16.6-alpine
+    restart: unless-stopped
+    env_file: [.env.prod.local]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    volumes:
+      - database_data:/var/lib/postgresql/data
+    security_opt: ["no-new-privileges:true"]
+    networks: [backend]
+
+volumes:
+  database_data:
+  content_files:
+  app_var:
+  caddy_data:
+  caddy_config:
+
+networks:
+  frontend:
+  backend:
+    internal: true

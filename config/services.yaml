@@ -1,0 +1,34 @@
+# Point d'entrée de la configuration des services.
+parameters:
+
+services:
+    _defaults:
+        autowire: true
+        autoconfigure: true
+        bind:
+            string $contentDir: '%callisto.content_dir%'
+            string $filesDir: '%callisto.files_dir%'
+            int $quizMaxDurationMinutes: '%callisto.quiz.max_duration_minutes%'
+
+    App\:
+        resource: '../src/'
+        exclude:
+            - '../src/Kernel.php'
+            - '../src/*/Domain/'
+            - '../src/*/Entity/'
+
+    App\Progress\Entity\AppendOnlyGuard: ~
+
+    App\Progress\Domain\GradeCalculator:
+        arguments:
+            $weights: '%callisto.grade.weights%'
+
+    App\Referential\Domain\ConstellationLayout: ~
+
+    Random\Randomizer: ~
+    App\Quiz\Domain\QuestionDrawer: ~
+
+    App\Shared\Http\SessionIdleSubscriber:
+        arguments:
+            $studentTimeoutMinutes: '%callisto.session.idle_timeout_minutes%'
+            $teacherTimeoutMinutes: '%callisto.session.teacher_idle_timeout_minutes%'

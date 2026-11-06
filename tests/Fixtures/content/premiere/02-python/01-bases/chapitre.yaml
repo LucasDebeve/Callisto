@@ -1,0 +1,17 @@
+code: prem-python-bases
+titre: Bases de Python
+ordre: 1
+elements:
+  - code: prem-py-variables
+    type: savoir
+    titre: Connaître l'affectation et les types de base
+    questions_par_tentative: 2
+  - code: prem-py-boucles
+    type: savoir
+    titre: Connaître les boucles for et while
+    prerequis: [prem-py-variables]
+    questions_par_tentative: 2
+  - code: prem-py-sf-fonction
+    type: savoir-faire
+    titre: Écrire une fonction simple avec sa spécification
+    prerequis: [prem-py-boucles]

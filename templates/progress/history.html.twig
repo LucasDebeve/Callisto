@@ -1,0 +1,13 @@
+{% extends 'layout/student.html.twig' %}
+
+{% block title %}Historique{% endblock %}
+
+{% block content %}
+<h1 class="mb-2">Historique</h1>
+<p class="muted mb-6">Tes tentatives de QCM et tes validations, de la plus récente à la plus ancienne.</p>
+{% if timeline is empty %}
+    {% include 'components/_empty.html.twig' with {message: 'Rien ici pour l\'instant.', hint: 'Passe un premier QCM depuis Mon ciel.'} %}
+{% else %}
+    <div class="card max-w-3xl">{% include 'progress/_timeline.html.twig' with {timeline: timeline, compact: false} %}</div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,64 @@
+{% extends 'layout/student.html.twig' %}
+
+{% block title %}Résultat du QCM{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl">
+    <p class="eyebrow">{{ item ? item.title : attempt.itemCode }}</p>
+    <h1 class="mb-4">Résultat</h1>
+
+    <section class="card mb-6" aria-labelledby="score">
+        <h2 id="score" class="mb-2">{{ attempt.score }} bonne{{ attempt.score > 1 ? 's' }} réponse{{ attempt.score > 1 ? 's' }} sur {{ attempt.total }}</h2>
+        <p class="muted mb-4">Seuil du savoir : {{ attempt.thresholdPercent }} %, soit {{ attempt.requiredScore }} sur {{ attempt.total }}.</p>
+        {% if attempt.passed %}
+            <div class="alert alert-success" role="status">{{ icon('sparkles') }}
+                <p>{% if newValidation %}Savoir validé. Une étoile de plus dans cette constellation.{% else %}Seuil atteint. Ce savoir était déjà validé.{% endif %}</p>
+            </div>
+            {% if item %}<a class="btn btn-primary" href="{{ path('student_constellation', {code: item.chapter.theme.code, etoile: item.code}) }}">{{ icon('sparkles') }}Voir ma constellation</a>{% endif %}
+        {% else %}
+            {% set missing = attempt.requiredScore - attempt.score %}
+            <div class="alert alert-info" role="status">{{ icon('info') }}
+                <p>Il te manque {{ missing }} bonne{{ missing > 1 ? 's' }} réponse{{ missing > 1 ? 's' }} pour valider ce savoir. Relis la correction et retente.</p>
+            </div>
+            {% if item %}
+                <form method="post" action="{{ path('quiz_start', {code: item.code}) }}">
+                    <input type="hidden" name="_token" value="{{ csrf_token('quiz_start') }}">
+                    <button class="btn btn-primary" type="submit">{{ icon('rotate-ccw') }}Réessayer</button>
+                </form>
+            {% endif %}
+        {% endif %}
+    </section>
+
+    <h2 class="mb-4">Correction</h2>
+    <ol class="flex flex-col gap-6">
+        {% for q in questions %}
+            {% set right = attempt.results[loop.index0] ?? false %}
+            {% set given = attempt.answer(loop.index0) %}
+            <li class="card correction {{ right ? 'is-right' : 'is-wrong' }}">
+                <p class="mb-2 flex items-center justify-between gap-2">
+                    <span class="font-semibold">Question {{ loop.index }}</span>
+                    {% if right %}<span class="verdict is-right">{{ icon('circle-check', 'icon-sm') }}Juste</span>{% else %}<span class="verdict is-wrong">{{ icon('circle-x', 'icon-sm') }}Faux</span>{% endif %}
+                </p>
+                <div class="prose mb-3">{{ q.promptHtml|raw }}</div>
+                {% if q.codeHtml %}<div class="mb-3">{{ q.codeHtml|raw }}</div>{% endif %}
+                {% if q.type == 'courte' %}
+                    <p class="mb-1"><span class="muted">Ta réponse :</span> <code>{{ given ?: '(aucune)' }}</code></p>
+                    <p class="mb-3"><span class="muted">Réponse{{ q.acceptedAnswers|length > 1 ? 's' }} acceptée{{ q.acceptedAnswers|length > 1 ? 's' }} :</span> {% for a in q.acceptedAnswers %}<code>{{ a }}</code>{{ not loop.last ? ', ' }}{% endfor %}</p>
+                {% else %}
+                    <ul class="mb-3 flex flex-col gap-1">
+                        {% for c in q.choices %}
+                            {% set chosen = given is iterable ? c.key in given : given == c.key %}
+                            <li class="answer-line {{ c.correct ? 'is-correct' : (chosen ? 'is-chosen-wrong' : '') }}">
+                                <span class="mt-1">{% if c.correct %}{{ icon('check', 'icon-sm', 'bonne réponse') }}{% elseif chosen %}{{ icon('x', 'icon-sm', 'mauvaise réponse') }}{% else %}<span class="icon-sm inline-block"></span>{% endif %}</span>
+                                <div class="prose">{{ c.html|raw }}</div>
+                                {% if chosen %}<span class="badge ml-auto">Ton choix</span>{% endif %}
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+                {% if q.explanationHtml %}<div class="prose text-sm"><p class="eyebrow">Explication</p>{{ q.explanationHtml|raw }}</div>{% endif %}
+            </li>
+        {% endfor %}
+    </ol>
+</div>
+{% endblock %}

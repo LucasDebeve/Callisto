@@ -1,0 +1,8 @@
+# Formulaire et vérification de la double authentification de l'espace enseignant (S5).
+teacher_2fa_login:
+    path: /enseignant/2fa
+    defaults:
+        _controller: "scheb_two_factor.form_controller::form"
+
+teacher_2fa_login_check:
+    path: /enseignant/2fa/verification

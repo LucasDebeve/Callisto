@@ -1,0 +1,13 @@
+code: snt-internet-dns
+titre: Noms de domaine
+ordre: 2
+elements:
+  - code: snt-int-dns
+    type: savoir
+    titre: Connaître le rôle du DNS
+    prerequis: [snt-int-adresse-ip]
+    questions_par_tentative: 2
+  - code: snt-int-sf-dns
+    type: savoir-faire
+    titre: Retrouver l'adresse IP associée à un nom de domaine
+    prerequis: [snt-int-dns]

@@ -1,0 +1,40 @@
+savoir: prem-ent-binaire
+questions:
+  - code: prem-bin-q1
+    type: unique
+    enonce: Que vaut `1011` en base 2 ?
+    choix:
+      - texte: "11"
+        juste: true
+      - texte: "13"
+      - texte: "1011"
+    explication: 8 + 0 + 2 + 1 = 11.
+  - code: prem-bin-q2
+    type: courte
+    enonce: Écris 6 en base 2 (sans préfixe).
+    reponses_acceptees: ["110", "0110"]
+    explication: 6 = 4 + 2, donc `110`.
+  - code: prem-bin-q3
+    type: unique
+    enonce: Qu'affiche ce programme ?
+    code_source: |
+      n = 0
+      for bit in "101":
+          n = 2 * n + int(bit)
+      print(n)
+    choix:
+      - texte: "5"
+        juste: true
+      - texte: "101"
+      - texte: "3"
+    explication: "On lit les bits de gauche à droite : 1, puis 2×1+0 = 2, puis 2×2+1 = 5."
+  - code: prem-bin-q4
+    type: multiple
+    enonce: Quels nombres sont des puissances de 2 ?
+    choix:
+      - texte: "16"
+        juste: true
+      - texte: "24"
+      - texte: "64"
+        juste: true
+    explication: 16 = 2⁴ et 64 = 2⁶ ; 24 n'est pas une puissance de 2.

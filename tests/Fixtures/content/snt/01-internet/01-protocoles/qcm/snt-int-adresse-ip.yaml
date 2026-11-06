@@ -1,0 +1,44 @@
+savoir: snt-int-adresse-ip
+questions:
+  - code: snt-ip-q1
+    type: unique
+    enonce: À quoi sert une adresse IP ?
+    choix:
+      - texte: À identifier une machine sur un réseau
+        juste: true
+      - texte: À protéger une machine contre les virus
+      - texte: À mesurer la vitesse de la connexion
+    explication: L'adresse IP identifie une machine, comme une adresse postale identifie un logement.
+  - code: snt-ip-q2
+    type: unique
+    enonce: Laquelle de ces adresses IPv4 est **valide** ?
+    choix:
+      - texte: "`192.168.1.300`"
+      - texte: "`192.168.1.30`"
+        juste: true
+      - texte: "`192.168.1`"
+    explication: Une adresse IPv4 comporte quatre nombres, chacun compris entre 0 et 255.
+  - code: snt-ip-q3
+    type: courte
+    enonce: Combien de nombres compte une adresse IPv4 ? (réponds en chiffres)
+    reponses_acceptees: ["4", "quatre"]
+    explication: Une adresse IPv4 s'écrit avec quatre nombres séparés par des points.
+  - code: snt-ip-q4
+    type: multiple
+    enonce: Quelles informations trouve-t-on dans un paquet IP ?
+    choix:
+      - texte: L'adresse IP de l'expéditeur
+        juste: true
+      - texte: L'adresse IP du destinataire
+        juste: true
+      - texte: Le mot de passe de l'utilisateur
+    explication: Chaque paquet porte les adresses de l'expéditeur et du destinataire, pas de mot de passe.
+  - code: snt-ip-q5
+    type: unique
+    enonce: "Que vaut le plus grand nombre possible dans une adresse IPv4 ?"
+    choix:
+      - texte: "255"
+        juste: true
+      - texte: "256"
+      - texte: "999"
+    explication: Chaque nombre est codé sur un octet, de 0 à 255.

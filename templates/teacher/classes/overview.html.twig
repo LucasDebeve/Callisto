@@ -1,0 +1,27 @@
+{% extends 'layout/teacher.html.twig' %}
+
+{% block title %}Synthèse {{ class.name }}{% endblock %}
+
+{% block content %}
+<nav class="breadcrumb" aria-label="Fil d'Ariane"><ol><li><a href="{{ path('teacher_classes') }}">Classes</a></li><li><a href="{{ path('teacher_class_show', {id: class.id}) }}">{{ class.name }}</a></li><li aria-current="page">Synthèse</li></ol></nav>
+<h1 class="mb-2">Synthèse par élément</h1>
+<p class="muted mb-6">Pour chaque élément du référentiel : qui l'a validé et qui ne l'a pas encore validé ({{ count }} élèves).</p>
+{% if rows is empty %}
+    {% include 'components/_empty.html.twig' %}
+{% else %}
+    {% set currentTheme = null %}
+    {% for row in rows %}
+        {% if row.theme.code != currentTheme %}{% set currentTheme = row.theme.code %}<h2 class="mb-3 mt-8">{{ row.theme.title }}</h2>{% endif %}
+        <details class="card card-tight mb-2">
+            <summary class="flex cursor-pointer flex-wrap items-center justify-between gap-3">
+                <span class="flex items-center gap-2">{% include 'components/_type_icon.html.twig' with {type: row.item.type} %}<span class="font-semibold">{{ row.item.title }}</span></span>
+                <span class="text-sm">{{ row.done|length }} sur {{ count }} validés</span>
+            </summary>
+            <div class="mt-3 grid gap-4 sm:grid-cols-2">
+                <div><p class="verdict is-right mb-1">{{ icon('check', 'icon-sm') }}Validé</p><p class="text-sm">{% for s in row.done %}<a href="{{ path('teacher_student_show', {id: s.id}) }}">{{ s.displayName }}</a>{{ not loop.last ? ', ' }}{% else %}Personne pour l'instant.{% endfor %}</p></div>
+                <div><p class="muted mb-1 font-semibold">{{ icon('circle-dashed', 'icon-sm') }}Pas encore validé</p><p class="text-sm">{% for s in row.todo %}<a href="{{ path('teacher_student_show', {id: s.id}) }}">{{ s.displayName }}</a>{{ not loop.last ? ', ' }}{% else %}Tout le monde l'a validé.{% endfor %}</p></div>
+            </div>
+        </details>
+    {% endfor %}
+{% endif %}
+{% endblock %}
